@@ -2,7 +2,8 @@ from fastapi import Request, Depends
 
 import src.sly_globals as g
 
-import src.example_card
+import src.select_input_projects
+import src.connect_to_model
 
 
 @g.app.get("/")
