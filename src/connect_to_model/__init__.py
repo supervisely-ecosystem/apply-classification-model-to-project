@@ -17,9 +17,16 @@ DataJson()["model_options"] = {
         "size": "small"
 }
 
-DataJson()['model_info'] = {}
+DataJson()['model_info'] = None
+
+
 DataJson()['model_connected'] = False
 StateJson()['model_id'] = None
+
+DataJson()['modelClasses'] = None
+DataJson()['all_classes_collapsed'] = True
+
+StateJson()['activeNames'] = []
 
 
 

@@ -1,3 +1,21 @@
 .example-style {
     color: white;
 }
+
+
+.slider-wrapper .slider-tape .fflex {
+    width: 250px;
+}
+
+.sly-image-slider .slider-wrapper .slider-tape {
+    overflow: hidden;
+}
+
+
+.custom-full-size-slider .slider-tape {
+    width: 100%;
+}
+
+.custom-full-size-slider .slider-wrapper {
+    width: 100%;
+}

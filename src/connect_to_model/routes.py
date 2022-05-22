@@ -28,6 +28,9 @@ def connect_to_model(state: supervisely.app.StateJson = Depends(supervisely.app.
     try:
         card_functions.connect_to_model(state)
 
+        DataJson()['modelClasses'] = card_functions.get_model_classes_list()
+        DataJson()['model_info'] = g.model_data.get('info')
+
         DataJson()['model_connected'] = True
         DataJson()['current_step'] += 1
     except Exception as ex:
@@ -43,4 +46,19 @@ def connect_to_model(state: supervisely.app.StateJson = Depends(supervisely.app.
 @card_widgets.reselect_model_button.add_route(app=g.app, route=ElementButton.Routes.BUTTON_CLICKED)
 def reselect_projects_button_clicked(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
     DataJson()['current_step'] = 2
+    DataJson()['model_connected'] = False
+    run_sync(DataJson().synchronize_changes())
+
+
+@card_widgets.toggle_all_previews_button.add_route(g.app, route=ElementButton.Routes.BUTTON_CLICKED)
+def all_class_previews_toggled(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
+    if DataJson()['all_classes_collapsed'] is True:
+        card_widgets.toggle_all_previews_button.text = 'hide all'
+        state['activeNames'] = [class_info['name'] for class_info in DataJson()['modelClasses']]
+    else:
+        card_widgets.toggle_all_previews_button.text = 'show all'
+        state['activeNames'] = []
+
+    DataJson()['all_classes_collapsed'] = not DataJson()['all_classes_collapsed']
+    run_sync(state.synchronize_changes())
     run_sync(DataJson().synchronize_changes())

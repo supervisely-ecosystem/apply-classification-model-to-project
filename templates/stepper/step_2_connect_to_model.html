@@ -1,44 +1,76 @@
 <sly-card title="Connect to Model" subtitle="connect to served classification model">
+    <div style="display: flex; flex-direction: row; justify-content: space-between; overflow-x: hidden">
+        <div>
+            <div v-if="!data.model_connected" style="margin-bottom: 15px">
+                {{{ connect_model_notification_box.to_html() }}}
+            </div>
+            <div v-else>
+                <sly-field title="INFO: successfully connected to model"
+                           description="below are the parameters of the model"
+                           style="padding-top: 4px; padding-bottom: 6px">
 
-    <div v-if="!data.model_connected">
-        {{{ connect_model_notification_box.to_html() }}}
-    </div>
-    <div v-else>
-        <sly-field title="INFO: successfully connected to model"
-                   description="below are the parameters of the model"
-                   style="padding-top: 4px; padding-bottom: 6px">
+                    <sly-icon slot="icon" :options="{ color: '#13ce66', bgColor: '#e1f7eb', rounded: false }">
+                        <i class="zmdi zmdi-circle"></i>
+                    </sly-icon>
+                </sly-field>
+                <div v-for="v,k in data.modelInfo" class="mb10" style="word-break: break-all;">
+                    <div style="margin-bottom: 4px">
+                        <b>{{ k }}</b>: <span>{{ v }}</span>
+                    </div>
+                </div>
+            </div>
 
-            <sly-icon slot="icon" :options="{ color: '#13ce66', bgColor: '#e1f7eb', rounded: false }">
-                <i class="zmdi zmdi-circle"></i>
-            </sly-icon>
-        </sly-field>
-        <div v-for="v,k in data.modelInfo" class="mb10" style="word-break: break-all;">
-            <div style="margin-bottom: 4px">
-                <b>{{ k }}</b>: <span>{{ v }}</span>
+
+            <div>
+                <sly-select-app-session
+                        style="height: 100%"
+
+                        :group-id="data.team_id"
+                        :app-session-id.sync="state.model_id"
+                        :options="data.model_options"
+                        :disabled="data.current_step > 2">
+                </sly-select-app-session>
+            </div>
+
+            <div v-if="data.model_info" style="margin: 18px 5px">
+
+                <div>
+                    <div v-for="v, k in data.model_info" class="mb10" style="word-break: break-all;">
+                        <div style="margin-bottom: 4px">
+                            <b>{{ k }}</b>: <span>{{ v }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: 15px;">
+                <div v-if="data.current_step < 3">{{{ connect_model_button.to_html() }}}</div>
+                <div v-else style="position: absolute; bottom: 0">{{{ reselect_model_button.to_html() }}}</div>
             </div>
         </div>
-    </div>
+        <div v-if="data.modelClasses" style="width: 600px">
+            <div style="display: flex; flex-direction: row; width: 100%; justify-content: space-between; align-items: center">
+                <div style="margin-bottom: 10px;">
+                    {{{ model_classes_notification_box.to_html() }}}
+                </div>
+                <div>
+                    {{{ toggle_all_previews_button.to_html() }}}
+                </div>
+            </div>
 
+            <el-collapse style="width: 100%; max-height: 400px; overflow-y: scroll"
+                         v-model="state.activeNames">
+                <el-collapse-item v-for="tag in data.modelClasses" :name="tag.name">
+                    <template slot="title">
+                        <span style="min-width: 35%; display: inline-block;">
+                            <i class="zmdi zmdi-label mr5" :style="{color: tag.color}"></i>{{ tag.name }}
+                        </span>
+                    </template>
 
-    <div>
-        <sly-select-app-session
-                style="height: 100%"
+                    <sly-image-slider v-if="tag.images.length > 0"
+                                      :data="tag.images"/>
+                </el-collapse-item>
+            </el-collapse>
 
-                :group-id="data.team_id"
-                :app-session-id.sync="state.model_id"
-                :options="data.model_options"
-                :disabled="data.current_step > 2">
-        </sly-select-app-session>
-    </div>
-
-    <div style="margin-top: 15px">
-        <div v-if="data.current_step < 3">{{{ connect_model_button.to_html() }}}</div>
-        <div v-else>{{{ reselect_model_button.to_html() }}}</div>
-
-
-        <div v-if="data.current_step > 2" style="margin-top: 17px">
-            {{{ model_selected_done_label.to_html() }}}
         </div>
     </div>
-
 </sly-card>
