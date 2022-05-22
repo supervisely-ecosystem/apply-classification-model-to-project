@@ -19,3 +19,8 @@
 .custom-full-size-slider .slider-wrapper {
     width: 100%;
 }
+
+
+.custom-full-size-slider .slider-wrapper .slider-nav-btn {
+    border-radius: 30%;
+}
