@@ -24,3 +24,19 @@
 .custom-full-size-slider .slider-wrapper .slider-nav-btn {
     border-radius: 30%;
 }
+
+.ultra-table .our-custom-leaf {
+    border: 0;
+    height: 50px;
+    text-transform: uppercase;
+    background: #f6fafd;
+
+    border-bottom: 1px solid #ebebeb;
+
+}
+
+.ultra-table .our-custom-leaf div {
+    color: rgba(0, 0, 0, 0.5);
+    font-weight: 700;
+    font-size: 0.9rem;
+}

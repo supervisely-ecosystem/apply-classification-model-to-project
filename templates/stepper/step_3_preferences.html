@@ -1,0 +1,82 @@
+<sly-card title="Labeling Preferences" subtitle="adjust preferences for images labeling">
+    <div style="display: flex; flex-direction: row; justify-content: space-between; overflow-x: hidden;">
+
+        <div>
+            <el-form label-width="120px" label-position="left">
+                <el-form-item label="Labeling mode" required="True">
+                    <el-radio-group v-model="state.selectedLabelingMode">
+                        <el-radio-button label="Classes"></el-radio-button>
+                        <el-radio-button label="Images"></el-radio-button>
+                    </el-radio-group>
+                </el-form-item>
+                <el-form-item label="Predict topN" required="True">
+                    <el-input-number v-model="state.topN" :min="1" :max="100"></el-input-number>
+                </el-form-item>
+{#                <el-form-item label="Output project" required="True">#}
+{#                    <el-radio-group v-model="state.outputProject">#}
+{#                        <el-radio-button label="New"></el-radio-button>#}
+{#                        <el-radio-button label="Existing"></el-radio-button>#}
+{#                    </el-radio-group>#}
+{#                </el-form-item>#}
+            </el-form>
+
+            <div style="margin-top: 15px;">
+                <div v-if="data.current_step < 4">{{{ select_preferences_button.to_html() }}}</div>
+                <div v-else style="position: absolute; bottom: 0">{{{ reselect_preferences_button.to_html() }}}</div>
+            </div>
+
+        </div>
+        <div>
+            <el-collapse-transition>
+                <div v-show="state.selectedLabelingMode == 'Classes'">
+                    <el-table
+                            class="ultra-table"
+                            :data="data.classes_table_content"
+                            :disabled="data.current_step > 2"
+                            style="width: 740px; max-height: 400px; overflow-y: scroll"
+                            :default-sort="{prop: 'name', order: 'descending'}"
+                            @selection-change="
+                (val) => {
+                    state.selectedClasses = val.map(x => x.name);
+                }">
+                        <el-table-column type="selection" :disabled="data.current_step > 2"
+                                         width="46px"></el-table-column>
+                        <el-table-column sortable prop="name" :label="`Class Name`" width="130px">
+                            <template scope="scope">
+                                <div>
+                                    <i class="zmdi zmdi-circle" :style="{color: scope.row.color}"></i>
+                                    <span class="ml5 mr10">{{ scope.row.name }}</span>
+                                </div>
+                            </template>
+                        </el-table-column>
+                        <el-table-column sortable prop="shape" :label="`Shape`" align="center">
+                            <template scope="scope">
+                <span>
+                    <i class="zmdi zmdi-shape"></i>
+                    {{ scope.row.shape }}
+                </span>
+                            </template>
+                        </el-table-column>
+
+                        <el-table-column sortable prop="img_num" :label="`Images Labeled`" align="center">
+                            <template scope="scope">
+                <span>
+                    {{ scope.row.img_num }}
+                </span>
+                            </template>
+                        </el-table-column>
+
+                        <el-table-column sortable prop="obj_num" :label="`Objects Labeled`" align="center">
+                            <template scope="scope">
+                <span>
+                    {{ scope.row.obj_num }}
+                </span>
+                            </template>
+                        </el-table-column>
+
+                    </el-table>
+                </div>
+            </el-collapse-transition>
+        </div>
+    </div>
+</sly-card>

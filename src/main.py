@@ -4,6 +4,7 @@ import src.sly_globals as g
 
 import src.select_input_projects
 import src.connect_to_model
+import src.preferences
 
 
 @g.app.get("/")

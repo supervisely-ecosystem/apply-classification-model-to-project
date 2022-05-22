@@ -12,6 +12,8 @@ from supervisely import logger
 import src.connect_to_model.widgets as card_widgets
 import src.connect_to_model.functions as card_functions
 
+import src.preferences.functions as preferences_functions
+
 from supervisely.app import DataJson
 from supervisely.app.fastapi import run_sync
 from supervisely.app.widgets import ElementButton
@@ -31,11 +33,13 @@ def connect_to_model(state: supervisely.app.StateJson = Depends(supervisely.app.
         DataJson()['modelClasses'] = card_functions.get_model_classes_list()
         DataJson()['model_info'] = g.model_data.get('info')
 
+        DataJson()['classes_table_content'] = preferences_functions.get_classes_table_content(g.project_dir)
+
         DataJson()['model_connected'] = True
         DataJson()['current_step'] += 1
     except Exception as ex:
         DataJson()['model_connected'] = False
-        logger.warn(f'Cannot download projects: {repr(ex)}', exc_info=True)
+        logger.warn(f'Cannot connect to model: {repr(ex)}', exc_info=True)
         raise HTTPException(status_code=500, detail={'title': "Cannot connect to model",
                                                      'message': f'Please reselect model and try again'})
     finally:
