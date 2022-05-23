@@ -17,17 +17,16 @@ def connect_to_model(state):
         raise ValueError('model_id must be a number')
 
     g.model_data['info'] = validate_errors(g.api.task.send_request(model_id, "get_session_info", data={}))
-    g.model_data['meta_json'] = sly.ProjectMeta.from_json(
+    g.model_data['model_meta'] = sly.ProjectMeta.from_json(
         validate_errors(g.api.task.send_request(model_id, "get_model_meta", data={})))
     g.model_data['tags_examples'] = validate_errors(g.api.task.send_request(model_id, "get_tags_examples", data={}))
-    print()
 
 
 def get_class_color_from_meta(class_name):
     class_color = "#000000"
 
     try:
-        rgb_color = tuple(g.model_data['meta_json'].tag_metas.get(class_name).color)
+        rgb_color = tuple(g.model_data['model_meta'].tag_metas.get(class_name).color)
         class_color = '#%02x%02x%02x' % rgb_color
     except Exception as ex:
         logger.warning(f'cannot get color for class {class_name}:'

@@ -6,6 +6,8 @@ from supervisely.app.widgets import ElementButton
 
 from fastapi import Depends, HTTPException
 
+import src.preferences.functions as card_functions
+
 import src.preferences.widgets as card_widgets
 import src.sly_globals as g
 
@@ -16,7 +18,11 @@ def select_preferences_button_clicked(state: sly.app.StateJson = Depends(sly.app
         if state['selectedLabelingMode'] == "Classes" and len(state['selectedClasses']) == 0:
             raise ValueError('classes not selected')
 
-        DataJson()['current_step'] += 1
+        g.updated_images_ids = set()
+
+        card_functions.label_project(state=state)
+        sly.upload_project(dir=g.output_project_dir, api=g.api, workspace_id=g.WORKSPACE_ID)
+
     except Exception as ex:
 
         logger.warn(f'Cannot start labeling: {repr(ex)}', exc_info=True)

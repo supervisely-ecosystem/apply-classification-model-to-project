@@ -8,7 +8,7 @@ from supervisely.app import DataJson
 from supervisely.sly_logger import logger
 from starlette.staticfiles import StaticFiles
 
-import supervisely
+import supervisely as sly
 from supervisely.app.fastapi import create, Jinja2Templates
 
 app_root_directory = str(Path(__file__).parent.absolute().parents[0])
@@ -16,7 +16,7 @@ logger.info(f"App root directory: {app_root_directory}")
 
 app_cache_dir = os.path.join(app_root_directory, 'tempfiles', 'cache')
 
-api: supervisely.Api = supervisely.Api.from_env()
+api: sly.Api = sly.Api.from_env()
 file_cache = FileCache(name="FileCache", storage_root=app_cache_dir)
 app = FastAPI()
 sly_app = create()
@@ -31,8 +31,13 @@ templates_env = Jinja2Templates(directory=os.path.join(app_root_directory, 'temp
 
 DataJson()['current_step'] = 1
 
+batch_size = 128
 
-project_dir = os.path.join(app_root_directory, 'tempfiles', 'gt_project_dir')
+project_dir = os.path.join(app_root_directory, 'tempfiles', 'project_dir')
+output_project_dir = os.path.join(app_root_directory, 'tempfiles', 'output_project_dir')
+
+output_project: sly.Project = None
+
 project = {
     'workspace_id': 0,
     'project_id': 0
@@ -43,3 +48,6 @@ DataJson()['workspace_id'] = WORKSPACE_ID
 
 
 model_data = {}
+
+
+updated_images_ids = set()

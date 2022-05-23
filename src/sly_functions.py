@@ -1,4 +1,8 @@
+import os
 import supervisely as sly
+
+import src.sly_globals as g
+
 
 
 def get_classes_names_from_meta(project_meta: sly.ProjectMeta):
@@ -53,3 +57,51 @@ def get_classes_stats_for_project(project_dir) -> dict:
 
     return classes_stats
 
+
+def get_images_to_label(project_dir, selected_classes_names=None) -> dict:
+    project = sly.Project(directory=project_dir, mode=sly.OpenMode.READ)
+    project_meta = project.meta
+
+    for dataset in project.datasets:
+        items_names = dataset.get_items_names()
+
+        for item_name in items_names:
+            annotation = dataset.get_ann(item_name=item_name, project_meta=project_meta)
+            image_info = dataset.get_image_info(item_name=item_name)
+
+            if selected_classes_names is not None:
+                for label in annotation.labels:
+                    if label.obj_class.name in selected_classes_names:
+                        yield tuple([image_info, label])
+            else:
+                yield image_info
+
+
+def create_output_project(input_project_dir, output_project_dir):
+    os.makedirs(output_project_dir, exist_ok=True)
+    sly.fs.clean_dir(output_project_dir)
+    sly.Project(directory=input_project_dir, mode=sly.OpenMode.READ).copy_data(dst_directory=os.path.join(g.app_root_directory, 'tempfiles'), dst_name='output_project_dir')
+
+
+def update_project_tags_by_model_meta(project_dir):
+    model_meta: sly.ProjectMeta = g.model_data['model_meta']
+
+    tags_metas_list = []
+    for tag_meta in model_meta.tag_metas:
+        tags_metas_list.append(sly.TagMeta(name=f'nn_{tag_meta.name}', value_type=sly.TagValueType.ANY_NUMBER))
+
+    project = sly.Project(project_dir, mode=sly.OpenMode.READ)
+
+    meta_with_model_labels = sly.ProjectMeta(tag_metas=sly.TagMetaCollection(tags_metas_list))
+    meta_with_model_labels = project.meta.merge(meta_with_model_labels)
+    project.set_meta(meta_with_model_labels)
+
+    g.output_project = project
+
+
+def get_datasets_dict_by_project_dir(directory):
+    project = sly.Project(directory=directory, mode=sly.OpenMode.READ)
+    dsid2dataset = {}
+    for key, value in zip(project.datasets.keys(), project.datasets.items()):
+        dsid2dataset[g.api.dataset.get_info_by_name(parent_id=g.project['project_id'], name=key).id] = value
+    return dsid2dataset
