@@ -23,6 +23,7 @@ DataJson()['outputProject'] = {
     'id': None
 }
 
+DataJson()['labelingStarted'] = False
 DataJson()['labelingDone'] = False
 
 

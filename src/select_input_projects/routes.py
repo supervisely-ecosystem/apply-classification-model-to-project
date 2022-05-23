@@ -47,6 +47,8 @@ def download_selected_projects(state: supervisely.app.StateJson = Depends(superv
                                                      'message': f'Please reselect input data and try again'})
 
     finally:
+        DataJson()['model_connected'] = False
+
         card_widgets.download_projects_button.loading = False
         run_sync(DataJson().synchronize_changes())
 

@@ -43,6 +43,8 @@ def connect_to_model(state: supervisely.app.StateJson = Depends(supervisely.app.
         raise HTTPException(status_code=500, detail={'title': "Cannot connect to model",
                                                      'message': f'Please reselect model and try again'})
     finally:
+        DataJson()['labelingDone'] = False
+
         card_widgets.connect_model_button.loading = False
         run_sync(DataJson().synchronize_changes())
 

@@ -1,5 +1,6 @@
-<sly-card title="Connect to Model" subtitle="connect to served classification model">
-    <div style="display: flex; flex-direction: row; justify-content: space-between; overflow-x: hidden">
+<sly-card title="Connect to Model" subtitle="connect to served classification model"
+          :disabled="{disabled: data.current_step < 2, message: 'complete previous step to unlock'}">
+    <div style="display: flex; flex-direction: row; justify-content: space-between; overflow: hidden">
         <div>
             <div v-if="!data.model_connected" style="margin-bottom: 15px">
                 {{{ connect_model_notification_box.to_html() }}}
@@ -68,7 +69,7 @@
 
                     <sly-image-slider
                             v-if="tag.images.length > 0"
-                                      :data="tag.images"/>
+                            :data="tag.images"/>
                 </el-collapse-item>
             </el-collapse>
 

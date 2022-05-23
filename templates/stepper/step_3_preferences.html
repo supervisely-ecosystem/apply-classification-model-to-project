@@ -1,6 +1,7 @@
-<sly-card title="Labeling Preferences" subtitle="adjust preferences for images labeling">
+<sly-card title="Labeling Preferences" subtitle="adjust preferences for images labeling"
+:disabled="{disabled: data.current_step < 3, message: 'complete previous step to unlock'}">
 
-    <div style="display: flex; flex-direction: row; justify-content: space-between; overflow-x: hidden;">
+    <div style="display: flex; flex-direction: row; justify-content: space-between; overflow: hidden;">
         <div>
             <el-form label-width="120px" label-position="left">
                 <el-form-item label="Apply model to" required="True">
@@ -21,9 +22,12 @@
             </el-form>
 
             <div style="margin-top: 15px;">
-                <div style="margin: 0 0 20px; width: 300px">
-                    {{{ labeling_progress.to_html() }}}
-                </div>
+
+                <el-collapse-transition>
+                    <div v-show="data.labelingStarted || data.labelingDone" style="margin: 0 0 20px; width: 300px">
+                        {{{ labeling_progress.to_html() }}}
+                    </div>
+                </el-collapse-transition>
                 <div style="display: flex; flex-direction: row; align-items: center">
                     {{{ select_preferences_button.to_html() }}}
                     <el-collapse-transition>

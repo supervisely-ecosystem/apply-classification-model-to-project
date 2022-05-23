@@ -19,6 +19,7 @@ def select_preferences_button_clicked(state: sly.app.StateJson = Depends(sly.app
 
     card_widgets.select_preferences_button.loading = True
     DataJson()['labelingDone'] = False
+    DataJson()['labelingStarted'] = True
 
     run_sync(DataJson().synchronize_changes())
 
@@ -48,6 +49,8 @@ def select_preferences_button_clicked(state: sly.app.StateJson = Depends(sly.app
         raise HTTPException(status_code=500, detail={'title': "Cannot start labeling",
                                                      'message': f'{ex}'})
     finally:
+        DataJson()['labelingStarted'] = False
+
         card_widgets.select_preferences_button.loading = False
         run_sync(DataJson().synchronize_changes())
 
