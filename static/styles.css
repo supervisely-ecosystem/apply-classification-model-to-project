@@ -40,3 +40,7 @@
     font-weight: 700;
     font-size: 0.9rem;
 }
+
+.without-margins.input-label {
+    margin: 2px 18px 0 !important;
+}

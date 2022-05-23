@@ -45,6 +45,7 @@ project = {
 
 DataJson()['team_id'] = TEAM_ID
 DataJson()['workspace_id'] = WORKSPACE_ID
+DataJson()['instanceAddress'] = os.getenv('SERVER_ADDRESS')
 
 
 model_data = {}

@@ -85,6 +85,22 @@ def add_predicted_tags_to_labels(labels_batch, predictions):
     return updated_labels
 
 
+def get_predicted_tags_for_images(labels_batch, predictions):
+    predicted_tags_collections = []
+
+    for index, row in enumerate(labels_batch):
+        pred_scores_list, pred_classes_list = predictions[index]['score'], predictions[index]['class']
+
+        tags_list = []
+        for name, value in zip(pred_classes_list, pred_scores_list):
+            tag_meta = g.output_project.meta.get_tag_meta(f'nn_{name}')
+            tags_list.append(sly.Tag(meta=tag_meta, value=value))
+
+        predicted_tags_collections.append(sly.TagCollection(tags_list))
+
+    return predicted_tags_collections
+
+
 def get_predicted_labels_for_batch(labels_batch, model_session_id, top_n):
     inference_data = get_data_to_inference(labels_batch)
     predictions = g.api.task.send_request(model_session_id, "inference_batch_ids", data={
@@ -92,29 +108,37 @@ def get_predicted_labels_for_batch(labels_batch, model_session_id, top_n):
         **inference_data
     })
 
-    return add_predicted_tags_to_labels(labels_batch, predictions)
+    if len(labels_batch[0]) == 2:  # labels
+        return add_predicted_tags_to_labels(labels_batch, predictions)
+    else:  # images
+        return get_predicted_tags_for_images(labels_batch, predictions)
 
 
 def update_project_items_by_predicted_labels(labels_batch, predicted_labels):
     dsid2dataset = f.get_datasets_dict_by_project_dir(g.output_project_dir)
 
     for index, predicted_label in enumerate(predicted_labels):
-        item_info, _ = labels_batch[index]
-        dataset: sly.Dataset = dsid2dataset[item_info.dataset_id]
 
         if len(labels_batch[index]) == 2:  # labels
+            item_info, _ = labels_batch[index]
+            dataset: sly.Dataset = dsid2dataset[item_info.dataset_id]
+
             if item_info.id in g.updated_images_ids:
                 ann = dataset.get_ann(item_info.name, project_meta=g.output_project.meta)
             else:
-                ann = dataset.get_ann(item_info.name, project_meta=g.output_project.meta).clone(labels=[])
+                ann = sly.Annotation(img_size=(item_info.height, item_info.width))
 
             ann_labels = ann.labels
             ann_labels.append(predicted_label)
             updated_ann = ann.clone(labels=ann_labels)
-            dataset.set_ann(item_name=item_info.name, ann=updated_ann)
 
         else:  # images
-            raise NotImplementedError('images not available for now')
+            item_info = labels_batch[index]
+            dataset: sly.Dataset = dsid2dataset[item_info.dataset_id]
+
+            updated_ann = sly.Annotation(img_size=(item_info.height, item_info.width), img_tags=predicted_label)
+
+        dataset.set_ann(item_name=item_info.name, ann=updated_ann)
 
         if item_info.id not in g.updated_images_ids:
             g.updated_images_ids.add(item_info.id)
@@ -129,6 +153,7 @@ def update_annotations_in_for_loop(state):
 
         for label_info_to_annotate in f.get_images_to_label(g.project_dir, selected_classes_list):
             labels_batch.append(label_info_to_annotate)
+            pbar.update()
 
             if len(labels_batch) == g.batch_size:
                 predicted_labels = get_predicted_labels_for_batch(
@@ -138,7 +163,6 @@ def update_annotations_in_for_loop(state):
                 )
                 update_project_items_by_predicted_labels(labels_batch, predicted_labels)
                 labels_batch = []
-                pbar.update(len(labels_batch))
 
         if len(labels_batch) != 0:
             predicted_labels = get_predicted_labels_for_batch(
@@ -147,7 +171,6 @@ def update_annotations_in_for_loop(state):
                 top_n=state['topN']
             )
             update_project_items_by_predicted_labels(labels_batch, predicted_labels)
-            pbar.update(len(labels_batch))
 
 
 def label_project(state):
@@ -155,6 +178,3 @@ def label_project(state):
     f.update_project_tags_by_model_meta(project_dir=g.output_project_dir)
     update_annotations_in_for_loop(state=state)
 
-
-
-    # print(predictions)

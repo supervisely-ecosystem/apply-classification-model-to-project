@@ -31,14 +31,11 @@ def download_selected_projects(state: supervisely.app.StateJson = Depends(superv
         card_functions.download_project(project_selector_widget=card_widgets.project_selector,
                                         state=state, project_dir=g.project_dir)
 
-        # DataJson()['datasets_table_content'] = card_functions.get_datasets_table_content(
-        #     gt_project_dir=g.project_dir,
-        #     pred_project_dir=g.pred_project_dir)
 
         g.project['workspace_id'] = card_widgets.project_selector.get_selected_workspace_id(state)
         g.project['project_id'] = card_widgets.project_selector.get_selected_project_id(state)
 
-        # card_widgets.download_projects_button.disabled = True
+
         card_widgets.projects_downloaded_done_label.text = 'project downloaded'
 
         DataJson()['current_step'] += 1

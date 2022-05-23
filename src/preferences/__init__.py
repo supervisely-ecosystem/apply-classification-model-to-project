@@ -19,5 +19,12 @@ StateJson()['selectedClasses'] = []
 DataJson()['classes_table_content'] = []
 
 
+DataJson()['outputProject'] = {
+    'id': None
+}
+
+DataJson()['labelingDone'] = False
+
+
 
 
