@@ -1,23 +1,23 @@
 {
-    "name": "Application Name",
+    "name": "Apply Classifier to Images Project",
     "type": "app",
     "version": "2.0.0",
     "categories": [
-      ""
+      "neural network",
+        "labeling tools"
     ],
-    "description": "application description",
-    "docker_image": "supervisely/base-py-sdk:latest",
+    "description": "label project images or objects using NN",
+    "docker_image": "supervisely/base-py-branched:1.0.1",
     "entrypoint": "python -m uvicorn src.main:g.app --host 0.0.0.0 --port 8000",
     "port": 8000,
     "task_location": "workspace_tasks",
     "icon_background": "#FFFFFF",
 
-    "icon": "https://imgur.com/a9u0M3Y.png",
+    "icon": "https://img.icons8.com/color/96/000000/tags--v1.png",
     "icon_cover": true,
 
-    "instance_version": "6.4.45",
+    "integrated_into": ["panel"],
 
-    "context_menu": {
-        "target": ["images_project"]
-    }
+    "instance_version": "6.4.49"
+
 }
