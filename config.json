@@ -14,7 +14,7 @@
     "icon_background": "#FFFFFF",
 
     "icon": "https://img.icons8.com/color/96/000000/tags--v1.png",
-    "icon_cover": true,
+    "icon_cover": false,
 
     "integrated_into": ["panel"],
 
