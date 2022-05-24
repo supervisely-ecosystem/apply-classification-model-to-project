@@ -21,8 +21,9 @@ file_cache = FileCache(name="FileCache", storage_root=app_cache_dir)
 app = FastAPI()
 sly_app = create()
 
-TEAM_ID = os.getenv('context.teamId')
-WORKSPACE_ID = os.getenv('context.workspaceId')
+TEAM_ID = int(os.getenv('context.teamId'))
+WORKSPACE_ID = int(os.getenv('context.workspaceId'))
+PROJECT_ID = int(os.getenv('modal.state.slyProjectId')) if os.getenv('modal.state.slyProjectId').isnumeric() else None
 
 app.mount("/sly", sly_app)
 app.mount("/static", StaticFiles(directory=os.path.join(app_root_directory, 'static')), name="static")
