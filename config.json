@@ -16,8 +16,6 @@
     "icon": "https://img.icons8.com/color/96/000000/tags--v1.png",
     "icon_cover": true,
 
-    "integrated_into": ["panel"],
-
     "instance_version": "6.4.49"
 
 }

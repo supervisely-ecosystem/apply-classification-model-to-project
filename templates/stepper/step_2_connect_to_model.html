@@ -45,7 +45,7 @@
             </div>
             <div style="margin-top: 15px;">
                 <div v-if="data.current_step < 3">{{{ connect_model_button.to_html() }}}</div>
-                <div v-else style="position: absolute; bottom: 0">{{{ reselect_model_button.to_html() }}}</div>
+                <div v-else style="bottom: 0">{{{ reselect_model_button.to_html() }}}</div>
             </div>
         </div>
         <div v-if="data.modelClasses && data.model_connected" style="width: 600px">
