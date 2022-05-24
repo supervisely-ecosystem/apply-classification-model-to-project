@@ -34,13 +34,13 @@ def select_preferences_button_clicked(state: sly.app.StateJson = Depends(sly.app
         output_project_name = f"NN_{g.api.project.get_info_by_id(g.project['project_id']).name}"
 
         with card_widgets.labeling_progress(message='uploading project', total=g.output_project.total_items * 2) as pbar:
-            project_id, _ = sly.upload_project(dir=g.output_project_dir, api=g.api, project_name=output_project_name,
+            project_id, project_name = sly.upload_project(dir=g.output_project_dir, api=g.api, project_name=output_project_name,
                                                workspace_id=g.WORKSPACE_ID, progress_cb=pbar.update)
 
             project_info = g.api.project.get_info_by_id(project_id)
             DataJson()['outputProject'] = {
                 'id': project_info.id,
-                'name': output_project_name,
+                'name': project_name,
                 'img_url': project_info.reference_image_url,
             }
         DataJson()['labelingDone'] = True
