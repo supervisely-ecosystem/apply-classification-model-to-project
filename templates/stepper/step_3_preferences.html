@@ -1,109 +1,61 @@
 <sly-card title="Labeling Preferences" subtitle="adjust preferences for images labeling"
-:disabled="{disabled: data.current_step < 3, message: 'complete previous step to unlock'}">
+          :disabled="{disabled: data.current_step < 3, message: 'complete previous step to unlock'}">
 
-    <div style="display: flex; flex-direction: row; justify-content: space-between; overflow: hidden;">
-        <div>
-            <el-form label-width="120px" label-position="left">
-                <el-form-item label="Apply model to" required="True">
-                    <el-radio-group v-model="state.selectedLabelingMode">
-                        <el-radio-button label="Classes"></el-radio-button>
-                        <el-radio-button label="Images"></el-radio-button>
-                    </el-radio-group>
-                </el-form-item>
-                <el-form-item label="Predict topN" required="True">
-                    <el-input-number v-model="state.topN" :min="1" :max="100"></el-input-number>
-                </el-form-item>
-                {#                <el-form-item label="Output project" required="True">#}
-                {#                    <el-radio-group v-model="state.outputProject">#}
-                {#                        <el-radio-button label="New"></el-radio-button>#}
-                {#                        <el-radio-button label="Existing"></el-radio-button>#}
-                {#                    </el-radio-group>#}
-                {#                </el-form-item>#}
-            </el-form>
+    <div style="display: flex; flex-direction: column; overflow: hidden;">
 
-            <div style="margin-top: 15px;">
 
-                <el-collapse-transition>
-                    <div v-show="data.labelingStarted || data.labelingDone" style="margin: 0 0 20px; width: 300px">
-                        {{{ labeling_progress.to_html() }}}
-                    </div>
-                </el-collapse-transition>
-                <div style="display: flex; flex-direction: row; align-items: center">
-                    {{{ select_preferences_button.to_html() }}}
-                    <el-collapse-transition>
-                        <div v-show="data.labelingDone">
-                            <sly-field style="margin: 0 10px" title="" description="Output Project"
-                                       class="without-margins">
-                                <a slot="title" target="_blank"
-                                   :href="`${data.instanceAddress}/projects/${data.outputProject.id}/datasets`">{{ data.outputProject.name }}</a>
-                                <sly-icon slot="icon" :options="{ imageUrl: `${data.outputProject.img_url}` }"/>
-                            </sly-field>
-                        </div>
-                    </el-collapse-transition>
-                </div>
+        <sly-field title="Apply model to"
+                   description="you can label specific classes or whole images"
+                   style="margin: 10px 0">
+            <el-radio-group style="margin: 5px 0 0" v-model="state.selectedLabelingMode">
+                <el-radio-button label="Classes"></el-radio-button>
+                <el-radio-button label="Images"></el-radio-button>
+            </el-radio-group>
+            {% include 'stepper/3_preferences/classes_table.html' %}
+            {% include 'stepper/3_preferences/objects_padding.html' %}
 
-                <el-collapse-transition>
-                    <div v-show="data.labelingDone">
-                        <div style="margin: 20px 3px 0; width: 300px">
-                            {{{ labeling_done_label.to_html() }}}
-                        </div>
-                    </div>
-                </el-collapse-transition>
+        </sly-field>
+        <sly-field title="Apply topN predictions"
+                   :description="`set number of predictions which be applied to ${ state.selectedLabelingMode }`"
+                   style="margin: 10px 0">
+            <el-input-number v-model="state.topN" :min="1" :max="100"></el-input-number>
+        </sly-field>
 
-            </div>
 
-        </div>
-        <div>
+        <div style="margin-top: 15px;">
+
             <el-collapse-transition>
-                <div v-show="state.selectedLabelingMode == 'Classes'">
-                    <el-table
-                            class="ultra-table"
-                            :data="data.classes_table_content"
-                            :disabled="data.current_step > 2"
-                            style="width: 740px; max-height: 400px; overflow-y: scroll"
-                            :default-sort="{prop: 'name', order: 'descending'}"
-                            @selection-change="
-                (val) => {
-                    state.selectedClasses = val.map(x => x.name);
-                }">
-                        <el-table-column type="selection" :disabled="data.current_step > 2"
-                                         width="46px"></el-table-column>
-                        <el-table-column sortable prop="name" :label="`Class Name`" width="130px">
-                            <template scope="scope">
-                                <div>
-                                    <i class="zmdi zmdi-circle" :style="{color: scope.row.color}"></i>
-                                    <span class="ml5 mr10">{{ scope.row.name }}</span>
-                                </div>
-                            </template>
-                        </el-table-column>
-                        <el-table-column sortable prop="shape" :label="`Shape`" align="center">
-                            <template scope="scope">
-                <span>
-                    <i class="zmdi zmdi-shape"></i>
-                    {{ scope.row.shape }}
-                </span>
-                            </template>
-                        </el-table-column>
-
-                        <el-table-column sortable prop="img_num" :label="`Images Labeled`" align="center">
-                            <template scope="scope">
-                <span>
-                    {{ scope.row.img_num }}
-                </span>
-                            </template>
-                        </el-table-column>
-
-                        <el-table-column sortable prop="obj_num" :label="`Objects Labeled`" align="center">
-                            <template scope="scope">
-                <span>
-                    {{ scope.row.obj_num }}
-                </span>
-                            </template>
-                        </el-table-column>
-
-                    </el-table>
+                <div v-show="data.labelingStarted || data.labelingDone" style="margin: 0 0 20px; width: 300px">
+                    {{{ labeling_progress.to_html() }}}
                 </div>
             </el-collapse-transition>
+            <div style="display: flex; flex-direction: row; align-items: center">
+                <div>
+                    {{{ select_preferences_button.to_html() }}}
+                </div>
+                <el-collapse-transition>
+                    <div v-show="data.labelingDone">
+                        <sly-field style="margin: 0 10px" title="" description="Output Project"
+                                   class="without-margins">
+                            <a slot="title" target="_blank"
+                               :href="`${data.instanceAddress}/projects/${data.outputProject.id}/datasets`">{{ data.outputProject.name }}</a>
+                            <sly-icon slot="icon" :options="{ imageUrl: `${data.outputProject.img_url}` }"/>
+                        </sly-field>
+                    </div>
+                </el-collapse-transition>
+            </div>
+
+            <el-collapse-transition>
+                <div v-show="data.labelingDone">
+                    <div style="margin: 20px 3px 0; width: 300px">
+                        {{{ labeling_done_label.to_html() }}}
+                    </div>
+                </div>
+            </el-collapse-transition>
+
         </div>
+
     </div>
+
+
 </sly-card>

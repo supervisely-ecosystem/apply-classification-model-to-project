@@ -62,3 +62,14 @@ def reselect_projects_button_clicked(state: sly.app.StateJson = Depends(sly.app.
     DataJson()['current_step'] = 3
     run_sync(DataJson().synchronize_changes())
 
+
+@g.app.post('/classes_selection_change/')
+def selected_classes_changed(state: sly.app.StateJson = Depends(sly.app.StateJson.from_request)):
+    pass
+    # if len(state['selectedClasses']) > 0:
+    #     card_widgets.select_preferences_button.disabled = False
+    # else:
+    #     card_widgets.select_preferences_button.disabled = True
+
+    # run_sync(state.synchronize_changes())
+    # run_sync(DataJson().synchronize_changes())

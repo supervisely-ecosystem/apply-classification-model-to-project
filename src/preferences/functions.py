@@ -101,10 +101,11 @@ def get_predicted_tags_for_images(labels_batch, predictions):
     return predicted_tags_collections
 
 
-def get_predicted_labels_for_batch(labels_batch, model_session_id, top_n):
+def get_predicted_labels_for_batch(labels_batch, model_session_id, top_n, padding):
     inference_data = get_data_to_inference(labels_batch)
     predictions = g.api.task.send_request(model_session_id, "inference_batch_ids", data={
         'topn': top_n,
+        'pad': padding,
         **inference_data
     })
 
@@ -146,7 +147,8 @@ def update_project_items_by_predicted_labels(labels_batch, predicted_labels):
 
 def update_annotations_in_for_loop(state):
     selected_classes_list = state['selectedClasses'] if state['selectedLabelingMode'] == "Classes" else None
-    total = get_objects_num_by_classes(selected_classes_list) if state['selectedLabelingMode'] == "Classes" else g.output_project.total_items
+    total = get_objects_num_by_classes(selected_classes_list) if state[
+                                                                     'selectedLabelingMode'] == "Classes" else g.output_project.total_items
 
     with card_widgets.labeling_progress(message='classifying data', total=total) as pbar:
         labels_batch = []
@@ -159,7 +161,8 @@ def update_annotations_in_for_loop(state):
                 predicted_labels = get_predicted_labels_for_batch(
                     labels_batch=labels_batch,
                     model_session_id=state['model_id'],
-                    top_n=state['topN']
+                    top_n=state['topN'],
+                    padding=state['padding']
                 )
                 update_project_items_by_predicted_labels(labels_batch, predicted_labels)
                 labels_batch = []
@@ -168,7 +171,8 @@ def update_annotations_in_for_loop(state):
             predicted_labels = get_predicted_labels_for_batch(
                 labels_batch=labels_batch,
                 model_session_id=state['model_id'],
-                top_n=state['topN']
+                top_n=state['topN'],
+                padding=state['padding']
             )
             update_project_items_by_predicted_labels(labels_batch, predicted_labels)
 
@@ -177,4 +181,3 @@ def label_project(state):
     f.create_output_project(input_project_dir=g.project_dir, output_project_dir=g.output_project_dir)
     f.update_project_tags_by_model_meta(project_dir=g.output_project_dir)
     update_annotations_in_for_loop(state=state)
-
