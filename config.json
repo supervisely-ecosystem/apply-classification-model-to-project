@@ -18,7 +18,8 @@
   "context_menu": {
     "target": [
       "images_project"
-    ]
+    ],
+    "context_root": "Neural Networks"
   },
 
   "instance_version": "6.4.49"
