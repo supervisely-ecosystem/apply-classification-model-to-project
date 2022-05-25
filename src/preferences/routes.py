@@ -17,7 +17,7 @@ import src.sly_globals as g
 @card_widgets.select_preferences_button.add_route(app=g.app, route=card_widgets.select_preferences_button.Routes.BUTTON_CLICKED)
 def select_preferences_button_clicked(state: sly.app.StateJson = Depends(sly.app.StateJson.from_request)):
     card_widgets.select_preferences_button.loading = True
-    card_widgets.select_preferences_button.text = True
+    card_widgets.preview_results_button.disabled = True
 
     DataJson()['labelingDone'] = False
     DataJson()['labelingStarted'] = True
@@ -43,6 +43,7 @@ def select_preferences_button_clicked(state: sly.app.StateJson = Depends(sly.app
     finally:
         DataJson()['labelingStarted'] = False
 
+        card_widgets.preview_results_button.disabled = False
         card_widgets.select_preferences_button.loading = False
         run_sync(DataJson().synchronize_changes())
 
@@ -56,6 +57,8 @@ def reselect_projects_button_clicked(state: sly.app.StateJson = Depends(sly.app.
 @card_widgets.preview_results_button.add_route(app=g.app, route=ElementButton.Routes.BUTTON_CLICKED)
 def preview_results_button_clicked(state: sly.app.StateJson = Depends(sly.app.StateJson.from_request)):
     card_widgets.preview_results_button.loading = True
+    card_widgets.preview_grid_gallery.loading = True
+
     run_sync(DataJson().synchronize_changes())
     try:
         if state['selectedLabelingMode'] == "Classes" and len(state['selectedClasses']) == 0:
@@ -63,6 +66,7 @@ def preview_results_button_clicked(state: sly.app.StateJson = Depends(sly.app.St
 
         g.model_tag_suffix = ''
         g.updated_images_ids = set()
+
 
         images_for_preview = card_functions.get_images_for_preview(state=state, img_num=9)
 
@@ -80,6 +84,7 @@ def preview_results_button_clicked(state: sly.app.StateJson = Depends(sly.app.St
                                                      'message': f'{ex}'})
     finally:
         card_widgets.preview_results_button.loading = False
+        card_widgets.preview_grid_gallery.loading = False
         run_sync(DataJson().synchronize_changes())
 
 
