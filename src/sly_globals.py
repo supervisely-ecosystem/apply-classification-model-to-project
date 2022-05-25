@@ -50,6 +50,7 @@ DataJson()['instanceAddress'] = os.getenv('SERVER_ADDRESS')
 
 
 model_data = {}
+model_tag_suffix = ''
 
 
 updated_images_ids = set()

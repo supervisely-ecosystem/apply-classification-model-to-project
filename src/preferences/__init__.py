@@ -13,8 +13,11 @@ from src.preferences.widgets import *
 
 StateJson()['selectedLabelingMode'] = "Classes"
 StateJson()['outputProject'] = "New"
-StateJson()['topN'] = 1
 StateJson()['padding'] = 0
+StateJson()['topN'] = 1
+StateJson()['addConfidence'] = True
+StateJson()['addSuffix'] = False
+StateJson()['suffixValue'] = None
 
 StateJson()['selectedClasses'] = []
 DataJson()['classes_table_content'] = []

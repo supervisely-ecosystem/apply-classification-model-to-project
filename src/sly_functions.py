@@ -4,7 +4,6 @@ import supervisely as sly
 import src.sly_globals as g
 
 
-
 def get_classes_names_from_meta(project_meta: sly.ProjectMeta):
     classes_names = []
     for obj_class in project_meta.obj_classes:
@@ -80,19 +79,63 @@ def get_images_to_label(project_dir, selected_classes_names=None) -> dict:
 def create_output_project(input_project_dir, output_project_dir):
     os.makedirs(output_project_dir, exist_ok=True)
     sly.fs.clean_dir(output_project_dir)
-    sly.Project(directory=input_project_dir, mode=sly.OpenMode.READ).copy_data(dst_directory=os.path.join(g.app_root_directory, 'tempfiles'), dst_name='output_project_dir')
+    sly.Project(directory=input_project_dir, mode=sly.OpenMode.READ).copy_data(
+        dst_directory=os.path.join(g.app_root_directory, 'tempfiles'), dst_name='output_project_dir')
 
 
-def update_project_tags_by_model_meta(project_dir):
-    model_meta: sly.ProjectMeta = g.model_data['model_meta']
+def get_model_tags_list(model_tags_metas, suffix_value=None, suffix_needed=False, add_confidence=True):
+    if suffix_value is None or suffix_value == '':
+        suffix_value = '_nn'
 
     tags_metas_list = []
-    for tag_meta in model_meta.tag_metas:
-        tags_metas_list.append(sly.TagMeta(name=f'nn_{tag_meta.name}', value_type=sly.TagValueType.ANY_NUMBER))
+    for tag_meta in model_tags_metas:
+        tag_name = tag_meta.name
+
+        if suffix_needed is True:
+            tag_name = f'{tag_name}{suffix_value}'
+
+        tag_type = sly.TagValueType.ANY_NUMBER if add_confidence is True else sly.TagValueType.NONE
+        tags_metas_list.append(sly.TagMeta(name=f'{tag_name}', value_type=tag_type))
+
+    if suffix_needed:  # for reading in future
+        g.model_tag_suffix += suffix_value
+
+    return tags_metas_list
+
+
+def collisions_between_tags_exists(tag_metas, model_tags_metas):
+    project_tags = {tag.name: tag.value_type for tag in tag_metas}
+    model_tags = {tag.name: tag.value_type for tag in model_tags_metas}
+
+    intersected_tag_names = set(project_tags.keys()).intersection(set(model_tags.keys()))
+
+    for tag_name in intersected_tag_names:
+        if project_tags[tag_name] != model_tags[tag_name]:
+            return True
+    return False
+
+
+def update_project_tags_by_model_meta(project_dir, state):
+    model_meta: sly.ProjectMeta = g.model_data['model_meta']
+
+    model_tags_metas = get_model_tags_list(
+        model_tags_metas=model_meta.tag_metas,
+        suffix_value=state['suffixValue'],
+        suffix_needed=state['addSuffix'],
+        add_confidence=state['addConfidence']
+    )
 
     project = sly.Project(project_dir, mode=sly.OpenMode.READ)
 
-    meta_with_model_labels = sly.ProjectMeta(tag_metas=sly.TagMetaCollection(tags_metas_list))
+    while collisions_between_tags_exists(project.meta.tag_metas, model_tags_metas):
+        model_tags_metas = get_model_tags_list(
+            model_tags_metas=model_tags_metas,
+            suffix_value=state['suffixValue'],
+            suffix_needed=True,
+            add_confidence=state['addConfidence']
+        )
+
+    meta_with_model_labels = sly.ProjectMeta(tag_metas=sly.TagMetaCollection(model_tags_metas))
     meta_with_model_labels = project.meta.merge(meta_with_model_labels)
     project.set_meta(meta_with_model_labels)
 
@@ -105,4 +148,3 @@ def get_datasets_dict_by_project_dir(directory):
     for key, value in zip(project.datasets.keys(), project.datasets.items()):
         dsid2dataset[g.api.dataset.get_info_by_name(parent_id=g.project['project_id'], name=key).id] = value
     return dsid2dataset
-

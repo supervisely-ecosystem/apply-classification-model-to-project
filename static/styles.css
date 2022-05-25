@@ -44,3 +44,8 @@
 .without-margins.input-label {
     margin: 2px 18px 0 !important;
 }
+
+
+.children-with-margin * {
+    margin: 0 10px 0 0;
+}

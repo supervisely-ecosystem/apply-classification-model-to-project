@@ -77,8 +77,12 @@ def add_predicted_tags_to_labels(labels_batch, predictions):
 
         tags_list = []
         for name, value in zip(pred_classes_list, pred_scores_list):
-            tag_meta = g.output_project.meta.get_tag_meta(f'nn_{name}')
-            tags_list.append(sly.Tag(meta=tag_meta, value=value))
+            tag_meta = g.output_project.meta.get_tag_meta(f'{name}{g.model_tag_suffix}')
+
+            if tag_meta.value_type == sly.TagValueType.NONE:
+                tags_list.append(sly.Tag(meta=tag_meta))
+            else:
+                tags_list.append(sly.Tag(meta=tag_meta, value=value))
 
         updated_labels.append(label.clone(tags=sly.TagCollection(tags_list)))
 
@@ -93,8 +97,12 @@ def get_predicted_tags_for_images(labels_batch, predictions):
 
         tags_list = []
         for name, value in zip(pred_classes_list, pred_scores_list):
-            tag_meta = g.output_project.meta.get_tag_meta(f'nn_{name}')
-            tags_list.append(sly.Tag(meta=tag_meta, value=value))
+            tag_meta = g.output_project.meta.get_tag_meta(f'{name}{g.model_tag_suffix}')
+
+            if tag_meta.value_type == sly.TagValueType.NONE:
+                tags_list.append(sly.Tag(meta=tag_meta))
+            else:
+                tags_list.append(sly.Tag(meta=tag_meta, value=value))
 
         predicted_tags_collections.append(sly.TagCollection(tags_list))
 
@@ -147,8 +155,7 @@ def update_project_items_by_predicted_labels(labels_batch, predicted_labels):
 
 def update_annotations_in_for_loop(state):
     selected_classes_list = state['selectedClasses'] if state['selectedLabelingMode'] == "Classes" else None
-    total = get_objects_num_by_classes(selected_classes_list) if state[
-                                                                     'selectedLabelingMode'] == "Classes" else g.output_project.total_items
+    total = get_objects_num_by_classes(selected_classes_list) if state['selectedLabelingMode'] == "Classes" else g.output_project.total_items
 
     with card_widgets.labeling_progress(message='classifying data', total=total) as pbar:
         labels_batch = []
@@ -179,5 +186,21 @@ def update_annotations_in_for_loop(state):
 
 def label_project(state):
     f.create_output_project(input_project_dir=g.project_dir, output_project_dir=g.output_project_dir)
-    f.update_project_tags_by_model_meta(project_dir=g.output_project_dir)
+    f.update_project_tags_by_model_meta(project_dir=g.output_project_dir, state=state)
     update_annotations_in_for_loop(state=state)
+
+
+def upload_project():
+    output_project_name = f"NN_{g.api.project.get_info_by_id(g.project['project_id']).name}"
+
+    with card_widgets.labeling_progress(message='uploading project', total=g.output_project.total_items * 2) as pbar:
+        project_id, project_name = sly.upload_project(dir=g.output_project_dir, api=g.api,
+                                                      project_name=output_project_name,
+                                                      workspace_id=g.WORKSPACE_ID, progress_cb=pbar.update)
+
+        project_info = g.api.project.get_info_by_id(project_id)
+        DataJson()['outputProject'] = {
+            'id': project_info.id,
+            'name': project_name,
+            'img_url': project_info.reference_image_url,
+        }
