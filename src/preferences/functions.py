@@ -1,3 +1,10 @@
+import functools
+import os
+import random
+import time
+
+import cv2
+
 import src.sly_functions as f
 import src.sly_globals as g
 import supervisely as sly
@@ -67,22 +74,33 @@ def get_data_to_inference(images_batch):
     return data
 
 
+def get_tags_list_for_predictions(predictions_row):
+
+    pred_scores_list, pred_classes_list = predictions_row['score'], predictions_row['class']
+
+    tags_list = []
+    for name, value in zip(pred_classes_list, pred_scores_list):
+        tag_meta = g.output_project_meta.get_tag_meta(f'{name}{g.model_tag_suffix}')
+
+        if tag_meta.value_type == sly.TagValueType.NONE:
+            tags_list.append(sly.Tag(meta=tag_meta))
+        else:
+            tags_list.append(sly.Tag(meta=tag_meta, value=value))
+
+    return tags_list
+
+
 def add_predicted_tags_to_labels(labels_batch, predictions):
     updated_labels = []
 
     for index, row in enumerate(labels_batch):
         label: sly.Label = row[1]
 
-        pred_scores_list, pred_classes_list = predictions[index]['score'], predictions[index]['class']
+        if predictions[index] is None:
+            sly.logger.warning(f'cannot read prediction for label {row}')
+            continue
 
-        tags_list = []
-        for name, value in zip(pred_classes_list, pred_scores_list):
-            tag_meta = g.output_project.meta.get_tag_meta(f'{name}{g.model_tag_suffix}')
-
-            if tag_meta.value_type == sly.TagValueType.NONE:
-                tags_list.append(sly.Tag(meta=tag_meta))
-            else:
-                tags_list.append(sly.Tag(meta=tag_meta, value=value))
+        tags_list = get_tags_list_for_predictions(predictions[index])
 
         updated_labels.append(label.clone(tags=sly.TagCollection(tags_list)))
 
@@ -93,17 +111,12 @@ def get_predicted_tags_for_images(labels_batch, predictions):
     predicted_tags_collections = []
 
     for index, row in enumerate(labels_batch):
-        pred_scores_list, pred_classes_list = predictions[index]['score'], predictions[index]['class']
 
-        tags_list = []
-        for name, value in zip(pred_classes_list, pred_scores_list):
-            tag_meta = g.output_project.meta.get_tag_meta(f'{name}{g.model_tag_suffix}')
+        if predictions[index] is None:
+            sly.logger.warning(f'cannot read prediction for label {row}')
+            continue
 
-            if tag_meta.value_type == sly.TagValueType.NONE:
-                tags_list.append(sly.Tag(meta=tag_meta))
-            else:
-                tags_list.append(sly.Tag(meta=tag_meta, value=value))
-
+        tags_list = get_tags_list_for_predictions(predictions[index])
         predicted_tags_collections.append(sly.TagCollection(tags_list))
 
     return predicted_tags_collections
@@ -187,6 +200,10 @@ def update_annotations_in_for_loop(state):
 def label_project(state):
     f.create_output_project(input_project_dir=g.project_dir, output_project_dir=g.output_project_dir)
     f.update_project_tags_by_model_meta(project_dir=g.output_project_dir, state=state)
+
+    g.output_project = sly.Project(g.output_project_dir, mode=sly.OpenMode.READ)
+    g.output_project_meta = sly.Project(g.output_project_dir, mode=sly.OpenMode.READ).meta
+
     update_annotations_in_for_loop(state=state)
 
 
@@ -204,3 +221,112 @@ def upload_project():
             'name': project_name,
             'img_url': project_info.reference_image_url,
         }
+
+
+def stringify_label_tags(predicted_tags):
+    final_message = ''
+
+    for index, tag in enumerate(predicted_tags):
+        value = ''
+        if tag.value is not None:
+            value = f":{round(tag.value, 3)}"
+
+        final_message += f'top@{index + 1} — {tag.name}{value}<br>'
+
+    return final_message
+
+
+@functools.lru_cache(maxsize=10)
+def get_image_by_id(image_id):
+    return cv2.cvtColor(g.api.image.download_np(image_id), cv2.COLOR_BGR2RGB)
+
+
+def get_bbox_with_padding(rectangle, pad_percent, img_size):
+    top, left, bottom, right = rectangle
+    height, width = img_size
+
+    if pad_percent > 0:
+        sly.logger.debug("before padding", extra={"top": top, "left": left, "right": right, "bottom": bottom})
+        pad_lr = int((right - left) / 100 * pad_percent)
+        pad_ud = int((bottom - top) / 100 * pad_percent)
+        top = max(0, top - pad_ud)
+        bottom = min(height - 1, bottom + pad_ud)
+        left = max(0, left - pad_lr)
+        right = min(width - 1, right + pad_lr)
+        sly.logger.debug("after padding", extra={"top": top, "left": left, "right": right, "bottom": bottom})
+
+    return [top, left, bottom, right]
+
+
+def clean_up_preview_images_dir():
+    preview_files_path = os.path.join('static', 'preview_images')
+
+    static_files_dir = os.path.join(g.app_root_directory, preview_files_path)
+    os.makedirs(static_files_dir, exist_ok=True)
+    sly.fs.clean_dir(static_files_dir)
+
+
+def get_cropped_image_url(label_b, state):
+    img_info, label = label_b
+    img_np = get_image_by_id(img_info.id)
+
+    try:
+        sly_rectangle = label.geometry.to_bbox()
+        rectangle = [
+            sly_rectangle.top,
+            sly_rectangle.left,
+            sly_rectangle.bottom,
+            sly_rectangle.right
+        ]
+
+        top, left, bottom, right = get_bbox_with_padding(rectangle=rectangle, pad_percent=state['padding'],
+                                                         img_size=img_np.shape[:2])
+
+        rect = sly.Rectangle(top, left, bottom, right)
+        cropping_rect = rect.crop(sly.Rectangle.from_size(img_np.shape[:2]))[0]
+        img_np = sly.image.crop(img_np, cropping_rect)
+
+    except Exception as ex:
+        sly.logger.warning(f'Cannot crop image: {ex}')
+
+    preview_files_path = os.path.join('static', 'preview_images')
+    static_files_dir = os.path.join(g.app_root_directory, preview_files_path)
+
+    filename = f'{img_info.id}_{time.time_ns()}.png'
+    image_path = os.path.join(static_files_dir, filename)
+    cv2.imwrite(image_path, img_np)
+
+    return os.path.join(preview_files_path, filename)
+
+
+def get_images_for_preview(state, img_num):
+    clean_up_preview_images_dir()
+
+    g.output_project_meta = f.get_project_meta_merged_with_model_tags(g.project_dir, state)
+
+    selected_classes_list = state['selectedClasses'] if state['selectedLabelingMode'] == "Classes" else None
+    labels_batch = []
+    for label_info_to_annotate in f.get_images_to_label(g.project_dir, selected_classes_list):
+        labels_batch.append(label_info_to_annotate)
+        if len(labels_batch) == img_num * 5:
+            break
+
+    random.shuffle(labels_batch)
+    labels_batch = labels_batch[:img_num]
+
+    predicted_labels = get_predicted_labels_for_batch(
+        labels_batch=labels_batch,
+        model_session_id=state['model_id'],
+        top_n=state['topN'],
+        padding=state['padding']
+    )
+
+    images_for_preview = []
+    for label_b, predicted_label in zip(labels_batch, predicted_labels):
+
+        images_for_preview.append({
+            'url': get_cropped_image_url(label_b, state) if len(label_b) == 2 else label_b.full_storage_url,
+            'title': stringify_label_tags(predicted_label.tags) if len(label_b) == 2 else stringify_label_tags(predicted_label)
+        })
+
+    return images_for_preview

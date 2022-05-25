@@ -13,6 +13,7 @@ import src.connect_to_model.widgets as card_widgets
 import src.connect_to_model.functions as card_functions
 
 import src.preferences.functions as preferences_functions
+import src.preferences.widgets as preferences_widgets
 
 from supervisely.app import DataJson
 from supervisely.app.fastapi import run_sync
@@ -36,6 +37,8 @@ def connect_to_model(state: supervisely.app.StateJson = Depends(supervisely.app.
         DataJson()['classes_table_content'] = preferences_functions.get_classes_table_content(g.project_dir)
 
         DataJson()['model_connected'] = True
+        preferences_widgets.preview_results_button.disabled = False
+
         DataJson()['current_step'] += 1
     except Exception as ex:
         DataJson()['model_connected'] = False
@@ -53,6 +56,7 @@ def connect_to_model(state: supervisely.app.StateJson = Depends(supervisely.app.
 def reselect_projects_button_clicked(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
     DataJson()['current_step'] = 2
     DataJson()['model_connected'] = False
+    preferences_widgets.preview_results_button.disabled = True
     run_sync(DataJson().synchronize_changes())
 
 

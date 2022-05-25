@@ -115,7 +115,7 @@ def collisions_between_tags_exists(tag_metas, model_tags_metas):
     return False
 
 
-def update_project_tags_by_model_meta(project_dir, state):
+def get_project_meta_merged_with_model_tags(project_dir, state):
     model_meta: sly.ProjectMeta = g.model_data['model_meta']
 
     model_tags_metas = get_model_tags_list(
@@ -136,10 +136,13 @@ def update_project_tags_by_model_meta(project_dir, state):
         )
 
     meta_with_model_labels = sly.ProjectMeta(tag_metas=sly.TagMetaCollection(model_tags_metas))
-    meta_with_model_labels = project.meta.merge(meta_with_model_labels)
-    project.set_meta(meta_with_model_labels)
+    return project.meta.merge(meta_with_model_labels)
 
-    g.output_project = project
+
+def update_project_tags_by_model_meta(project_dir, state):
+    merged_meta = get_project_meta_merged_with_model_tags(project_dir, state)
+    project = sly.Project(project_dir, mode=sly.OpenMode.READ)
+    project.set_meta(merged_meta)
 
 
 def get_datasets_dict_by_project_dir(directory):

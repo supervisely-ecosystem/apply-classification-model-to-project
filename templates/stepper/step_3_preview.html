@@ -1,1 +1,5 @@
-<div style="max-width: 400px">{{{ preview_grid_gallery.to_html() }}}</div>
+<el-collapse-transition>
+    <div style="width: 40%" v-show="Object.keys(data.preview_grid_gallery.content.annotations).length > 0">
+        <div >{{{ preview_grid_gallery.to_html() }}}</div>
+    </div>
+</el-collapse-transition>

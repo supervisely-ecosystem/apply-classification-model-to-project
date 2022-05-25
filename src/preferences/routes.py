@@ -53,6 +53,36 @@ def reselect_projects_button_clicked(state: sly.app.StateJson = Depends(sly.app.
     run_sync(DataJson().synchronize_changes())
 
 
+@card_widgets.preview_results_button.add_route(app=g.app, route=ElementButton.Routes.BUTTON_CLICKED)
+def preview_results_button_clicked(state: sly.app.StateJson = Depends(sly.app.StateJson.from_request)):
+    card_widgets.preview_results_button.loading = True
+    run_sync(DataJson().synchronize_changes())
+    try:
+        if state['selectedLabelingMode'] == "Classes" and len(state['selectedClasses']) == 0:
+            raise ValueError('classes not selected')
+
+        g.model_tag_suffix = ''
+        g.updated_images_ids = set()
+
+        images_for_preview = card_functions.get_images_for_preview(state=state, img_num=9)
+
+        card_widgets.preview_grid_gallery.clean_up()
+
+        for current_image in images_for_preview:
+            card_widgets.preview_grid_gallery.append(
+                image_url=current_image['url'],
+                title=current_image['title']
+            )
+
+    except Exception as ex:
+        logger.warn(f'Cannot preview results: {repr(ex)}', exc_info=True)
+        raise HTTPException(status_code=500, detail={'title': "Cannot preview results",
+                                                     'message': f'{ex}'})
+    finally:
+        card_widgets.preview_results_button.loading = False
+        run_sync(DataJson().synchronize_changes())
+
+
 @g.app.post('/classes_selection_change/')
 def selected_classes_changed(state: sly.app.StateJson = Depends(sly.app.StateJson.from_request)):
     pass
@@ -63,3 +93,5 @@ def selected_classes_changed(state: sly.app.StateJson = Depends(sly.app.StateJso
 
     # run_sync(state.synchronize_changes())
     # run_sync(DataJson().synchronize_changes())
+
+

@@ -12,6 +12,8 @@ from supervisely import logger
 import src.select_input_projects.widgets as card_widgets
 import src.select_input_projects.functions as card_functions
 
+import src.preferences.widgets as preferences_widgets
+
 from supervisely.app import DataJson
 from supervisely.app.fastapi import run_sync
 from supervisely.app.widgets import ElementButton
@@ -56,4 +58,6 @@ def reselect_projects_button_clicked(state: supervisely.app.StateJson = Depends(
     card_widgets.project_selector.disabled = False
 
     DataJson()['current_step'] = 1
+    preferences_widgets.preview_results_button.disabled = True
+
     run_sync(DataJson().synchronize_changes())

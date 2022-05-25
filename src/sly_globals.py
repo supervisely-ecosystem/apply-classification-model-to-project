@@ -38,6 +38,7 @@ project_dir = os.path.join(app_root_directory, 'tempfiles', 'project_dir')
 output_project_dir = os.path.join(app_root_directory, 'tempfiles', 'output_project_dir')
 
 output_project: sly.Project = None
+output_project_meta: sly.ProjectMeta = None
 
 project = {
     'workspace_id': 0,
