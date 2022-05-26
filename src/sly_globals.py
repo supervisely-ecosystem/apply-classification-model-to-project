@@ -55,3 +55,5 @@ model_tag_suffix = ''
 
 
 updated_images_ids = set()
+
+selected_classes_list = None

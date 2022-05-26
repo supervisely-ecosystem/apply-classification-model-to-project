@@ -1,11 +1,9 @@
-<sly-card title="Connect to Model" subtitle="connect to served classification model"
+<sly-card title="Connect to Model" subtitle="Connect to served classification model"
           :disabled="{disabled: data.current_step < 2, message: 'complete previous step to unlock'}">
     <div style="display: flex; flex-direction: column; overflow: hidden">
         <div>
-            <div v-if="!data.model_connected" style="margin-bottom: 15px">
-                {{{ connect_model_notification_box.to_html() }}}
-            </div>
-            <div v-else>
+
+            <div v-if="data.model_connected">
                 <sly-field title="Model Connected"
                            description="below are the parameters of the model"
                            style="padding-top: 4px; padding-bottom: 6px">
@@ -42,13 +40,21 @@
 
 
         <div v-if="data.modelClasses && data.model_connected" style="margin: 0 10px 0 0">
-            <hr/>
+            <div class="pretty-hr"></div>
 
             <div style="display: flex; flex-direction: row; width: 100%; justify-content: space-between; align-items: center">
                 <h3>Model Classes:</h3>
-                <div>
-                    {{{ toggle_all_previews_button.to_html() }}}
+
+                <div class="fflex">
+                    <el-button v-if="data.all_classes_collapsed" type="text" @click="post('/toggle_all_classes/');">
+                       <i class="zmdi zmdi-chevron-down" style="margin-right: 3px"></i> Show all
+                    </el-button>
+                    <el-button v-else type="text" @click="post('/toggle_all_classes/');"
+                               style="margin-left: 25px;">
+                       <i class="zmdi zmdi-chevron-up" style="margin-right: 3px"></i> Hide all
+                    </el-button>
                 </div>
+
             </div>
 
             <el-collapse style="width: 100%;"

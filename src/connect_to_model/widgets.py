@@ -4,7 +4,7 @@ from supervisely.app.widgets import ProjectSelector, ElementButton, SlyTqdm, Don
 import src.sly_globals as g
 
 connect_model_button = ElementButton(text='CONNECT', button_type='primary')
-reselect_model_button = ElementButton(text='<i style="margin-right: 5px" class="zmdi zmdi-rotate-left"></i>reselect', button_type='warning', button_size='small', plain=True)
+reselect_model_button = ElementButton(text='<i style="margin-right: 5px" class="zmdi zmdi-rotate-left"></i>connect to another model', button_type='warning', button_size='small', plain=True)
 model_selected_done_label = DoneLabel(text='successfully connected')
 
 toggle_all_previews_button = ElementButton(text='show all', plain=True, button_size='small')

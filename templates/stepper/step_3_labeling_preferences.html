@@ -1,15 +1,4 @@
-<sly-card title="Labeling Preferences" subtitle="adjust preferences for images labeling"
-          :disabled="{disabled: data.current_step < 3, message: 'complete previous step to unlock'}">
-     <div slot="header">
-            <div style="margin-bottom: 10px">
-                {{{ preview_results_button.to_html() }}}
-            </div>
-        </div>
-
-    <div style="display: flex; flex-direction: row; overflow: hidden; justify-content: space-between">
-        {% include 'stepper/step_3_settings.html' %}
-        {% include 'stepper/step_3_preview.html' %}
-    </div>
-
-
-</sly-card>
+<div style="display: flex; flex-direction: row; overflow: hidden; justify-content: space-between">
+    {% include 'stepper/step_3_settings.html' %}
+    {% include 'stepper/step_3_preview.html' %}
+</div>

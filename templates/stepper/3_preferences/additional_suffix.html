@@ -1,12 +1,16 @@
 <sly-field title="Add Suffix"
-           description="place additional suffix to applied tags"
+           description="Place additional suffix to applied tags"
            style="margin: 10px 0">
     <div style="margin: 0px 0">
-        <el-switch style="padding: 10px 0; margin: 0 10px 2px 0" v-model="state.addSuffix" on-text="" off-text=""></el-switch>
+        <el-switch style="padding: 10px 0; margin: 0 10px 2px 0"
+                   :disabled="data.current_step !== 3"
+                   v-model="state.addSuffix" on-text="" off-text=""></el-switch>
         <transition name="el-fade-in">
             <div v-show="state.addSuffix" style="display: inline-block">
 
-                <el-input style="margin: 0" placeholder="_nn" v-model="state.suffixValue"></el-input>
+                <el-input style="margin: 0" placeholder="_nn"
+                          :disabled="data.current_step !== 3"
+                          v-model="state.suffixValue"></el-input>
             </div>
         </transition>
     </div>

@@ -60,13 +60,13 @@ def reselect_projects_button_clicked(state: supervisely.app.StateJson = Depends(
     run_sync(DataJson().synchronize_changes())
 
 
-@card_widgets.toggle_all_previews_button.add_route(g.app, route=ElementButton.Routes.BUTTON_CLICKED)
-def all_class_previews_toggled(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
+@g.app.post('/toggle_all_classes/')
+def toggle_all_classes(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
     if DataJson()['all_classes_collapsed'] is True:
-        card_widgets.toggle_all_previews_button.text = 'hide all'
+        # card_widgets.toggle_all_previews_button.text = 'hide all'
         state['activeNames'] = [class_info['name'] for class_info in DataJson()['modelClasses']]
     else:
-        card_widgets.toggle_all_previews_button.text = 'show all'
+        # card_widgets.toggle_all_previews_button.text = 'show all'
         state['activeNames'] = []
 
     DataJson()['all_classes_collapsed'] = not DataJson()['all_classes_collapsed']

@@ -1,5 +1,15 @@
-<el-collapse-transition>
-    <div style="width: 40%" v-show="Object.keys(data.preview_grid_gallery.content.annotations).length > 0">
-        <div >{{{ preview_grid_gallery.to_html() }}}</div>
+<sly-card title="Preview Results"
+          subtitle="You can label specific classes or whole images"
+          :disabled="{disabled: data.current_step < 3, message: 'complete previous step to unlock'}"
+          style="width: 50%">
+    <div slot="header">
+        <div style="margin-bottom: 10px">
+            {{{ preview_results_button.to_html() }}}
+        </div>
     </div>
-</el-collapse-transition>
+    <el-collapse-transition>
+        <div v-show="Object.keys(data.preview_grid_gallery.content.annotations).length > 0">
+            <div>{{{ preview_grid_gallery.to_html() }}}</div>
+        </div>
+    </el-collapse-transition>
+</sly-card>

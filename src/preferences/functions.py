@@ -4,6 +4,7 @@ import random
 import time
 
 import cv2
+import numpy as np
 
 import src.sly_functions as f
 import src.sly_globals as g
@@ -289,14 +290,15 @@ def get_cropped_image_url(label_b, state):
     except Exception as ex:
         sly.logger.warning(f'Cannot crop image: {ex}')
 
-    preview_files_path = os.path.join('static', 'preview_images')
-    static_files_dir = os.path.join(g.app_root_directory, preview_files_path)
+    if np.prod(img_np.shape[:2]) > 1:
+        preview_files_path = os.path.join('static', 'preview_images')
+        static_files_dir = os.path.join(g.app_root_directory, preview_files_path)
 
-    filename = f'{img_info.id}_{time.time_ns()}.png'
-    image_path = os.path.join(static_files_dir, filename)
-    cv2.imwrite(image_path, img_np)
+        filename = f'{img_info.id}_{time.time_ns()}.png'
+        image_path = os.path.join(static_files_dir, filename)
+        cv2.imwrite(image_path, img_np)
 
-    return os.path.join(preview_files_path, filename)
+        return os.path.join(preview_files_path, filename)
 
 
 def get_images_for_preview(state, img_num):
@@ -323,6 +325,9 @@ def get_images_for_preview(state, img_num):
 
     images_for_preview = []
     for label_b, predicted_label in zip(labels_batch, predicted_labels):
+        img_url = get_cropped_image_url(label_b, state) if len(label_b) == 2 else label_b.full_storage_url
+        if img_url is None:
+            continue
 
         images_for_preview.append({
             'url': get_cropped_image_url(label_b, state) if len(label_b) == 2 else label_b.full_storage_url,

@@ -1,4 +1,4 @@
-<div>
+<div style="overflow-x: hidden; ">
     <el-collapse-transition>
         <div v-show="state.selectedLabelingMode == 'Classes'">
             <el-table
@@ -22,7 +22,7 @@
                         </div>
                     </template>
                 </el-table-column>
-                <el-table-column sortable prop="shape" :label="`Shape`" align="center">
+                <el-table-column sortable prop="shape" :label="`Shape`" align="center" width="110px">
                     <template scope="scope">
                                 <span>
                                     <i class="zmdi zmdi-shape"></i>
