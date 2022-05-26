@@ -47,11 +47,11 @@
 
                 <div class="fflex">
                     <el-button v-if="data.all_classes_collapsed" type="text" @click="post('/toggle_all_classes/');">
-                       <i class="zmdi zmdi-chevron-down" style="margin-right: 3px"></i> Show all
+                       <i class="zmdi zmdi-unfold-more" style="margin-right: 3px"></i> Expand all
                     </el-button>
                     <el-button v-else type="text" @click="post('/toggle_all_classes/');"
                                style="margin-left: 25px;">
-                       <i class="zmdi zmdi-chevron-up" style="margin-right: 3px"></i> Hide all
+                       <i class="zmdi zmdi-unfold-less" style="margin-right: 3px"></i> Collapse all
                     </el-button>
                 </div>
 

@@ -2,7 +2,7 @@
 
 <img src="" style="width: 100%;"/>
 
-# Application Readme
+# Apply Classifier to Images Project
 
 <p align="center">
   <a href="#Overview">Overview</a> •
@@ -23,7 +23,6 @@
 # Overview
 
 # Usage
-
 
 # How to run
 

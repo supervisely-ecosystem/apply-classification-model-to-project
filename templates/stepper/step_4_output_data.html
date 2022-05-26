@@ -1,4 +1,4 @@
-<sly-card title="Output Data" subtitle="Launch labeling process and get the results"
+<sly-card title="Output Project" subtitle="Launch labeling process and get the results"
           :disabled="{disabled: data.current_step < 4, message: 'complete previous step to unlock'}">
     <div style="">
 
@@ -11,7 +11,7 @@
 
 
         <el-collapse-transition>
-            <div v-show="data.labelingStarted || data.labelingDone" style="margin: 7px 0 2px;">
+            <div v-show="data.labelingStarted" style="margin: 7px 0 2px;">
                 {{{ labeling_progress.to_html() }}}
             </div>
         </el-collapse-transition>

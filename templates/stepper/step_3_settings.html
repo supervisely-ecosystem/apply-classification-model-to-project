@@ -30,7 +30,7 @@
             {% include 'stepper/3_preferences/add_confedence.html' %}
             {% include 'stepper/3_preferences/additional_suffix.html' %}
         </div>
-        <div style="display: flex; flex-direction: row; align-items: center">
+        <div style="display: flex; flex-direction: row; align-items: center; margin-top: 10px">
 
             <div v-if="data.current_step < 4">{{{ select_preferences_button.to_html() }}}</div>
             <div v-else style="bottom: 0">{{{ reselect_preferences_button.to_html() }}}</div>

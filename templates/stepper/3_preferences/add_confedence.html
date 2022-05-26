@@ -1,9 +1,12 @@
-<sly-field title="Add Confidence"
-           description="Place predictions confidence as tags values"
-           style="margin: 10px 0">
-    <div style="margin: 0px 0">
-        <el-switch style="padding: 10px 0; margin: 0 10px 2px 0"
-                   :disabled="data.current_step !== 3"
-                   v-model="state.addConfidence" on-text="" off-text=""></el-switch>
-    </div>
-</sly-field>
+<div class="field-with-checkbox-container">
+    <el-checkbox v-model="state.addConfidence"
+                 :disabled="data.current_step !== 3"
+                 style="margin: 0 10px 0 0"></el-checkbox>
+
+    <sly-field title="Add Confidence"
+               description="Place predictions confidence as tags values"
+               style="margin: 10px 0">
+
+
+    </sly-field>
+</div>

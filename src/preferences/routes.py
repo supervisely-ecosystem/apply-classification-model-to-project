@@ -9,6 +9,8 @@ from fastapi import Depends, HTTPException
 import src.preferences.functions as card_functions
 
 import src.preferences.widgets as card_widgets
+import src.connect_to_model.widgets as connect_to_model_widgets
+import src.select_input_projects.widgets as select_input_widgets
 
 import src.sly_functions as f
 import src.sly_globals as g
@@ -37,7 +39,11 @@ def select_preferences_button(state: sly.app.StateJson = Depends(sly.app.StateJs
 @card_widgets.start_labeling_button.add_route(app=g.app, route=card_widgets.start_labeling_button.Routes.BUTTON_CLICKED)
 def start_labeling_button_clicked(state: sly.app.StateJson = Depends(sly.app.StateJson.from_request)):
     card_widgets.start_labeling_button.loading = True
+
+    select_input_widgets.reselect_projects_button.disabled = True
+    connect_to_model_widgets.reselect_model_button.disabled = True
     card_widgets.preview_results_button.disabled = True
+    card_widgets.reselect_preferences_button.disabled = True
 
     DataJson()['labelingDone'] = False
     DataJson()['labelingStarted'] = True
@@ -64,7 +70,11 @@ def start_labeling_button_clicked(state: sly.app.StateJson = Depends(sly.app.Sta
     finally:
         DataJson()['labelingStarted'] = False
 
+        select_input_widgets.reselect_projects_button.disabled = False
+        connect_to_model_widgets.reselect_model_button.disabled = False
         card_widgets.preview_results_button.disabled = False
+        card_widgets.reselect_preferences_button.disabled = False
+
         card_widgets.start_labeling_button.loading = False
         run_sync(DataJson().synchronize_changes())
 
