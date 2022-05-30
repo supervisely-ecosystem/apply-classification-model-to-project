@@ -11,10 +11,7 @@ preview_results_button.disabled = True
 
 preview_grid_gallery = GridGallery(columns_number=3, show_opacity_slider=False, sync_views=True)
 
-
 labeling_progress = SlyTqdm()
-
 labeling_done_label = DoneLabel(text='done')
 
-
-start_labeling_button = ElementButton(text='start labeling')
+start_labeling_button = ElementButton(text='Apply Classifier to Images Project')

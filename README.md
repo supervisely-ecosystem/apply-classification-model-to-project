@@ -1,6 +1,6 @@
 <div align="center" markdown>
 
-<img src="https://github.com/supervisely-ecosystem/apply-classification-model-to-project/releases/download/v0.0.1/demo.gif?raw=true" style="width: 100%;"/>
+<img src="https://github.com/supervisely-ecosystem/apply-classification-model-to-project/releases/download/v0.0.1/poster.png" style="width: 100%;"/>
 
 # Apply Classifier to Images Project
 
