@@ -7,8 +7,8 @@
 <p align="center">
   <a href="#Overview">Overview</a> •
   <a href="#Usage">Usage</a> •
-  <a href="#common-apps">Common Apps</a> •
   <a href="#how-to-run">How to run</a> •
+  <a href="#common-apps">Common Apps</a> •
   <a href="#screenshot">Screenshot</a>
 </p>
 
