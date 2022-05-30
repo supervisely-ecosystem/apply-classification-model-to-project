@@ -1,6 +1,6 @@
 <div align="center" markdown>
 
-<img src="" style="width: 100%;"/>
+<img src="https://github.com/supervisely-ecosystem/apply-classification-model-to-project/releases/download/v0.0.1/demo.gif?raw=true" style="width: 100%;"/>
 
 # Apply Classifier to Images Project
 
@@ -37,7 +37,26 @@ Application key points:
 # Usage
 
 
+<a data-key="sly-embeded-video-link" href="https://youtu.be/yCGgnEd7dtU" data-video-code="yCGgnEd7dtU">
+    <img src="https://github.com/supervisely-ecosystem/apply-classification-model-to-project/releases/download/v0.0.1/youtube-image-holder.jpg" alt="SLY_EMBEDED_VIDEO_LINK"  style="max-width:50%;">
+</a>
 
-# How to run
+
+
+# How To Run
+
+1. Add [Apply Classifier to Images Project](https://ecosystem.supervise.ly/apps/supervisely-ecosystem/apply-classification-model-to-project) application to your Team
+
+<img data-key="sly-module-link" data-module-slug="supervisely-ecosystem/apply-classification-model-to-project" src="https://github.com/supervisely-ecosystem/apply-classification-model-to-project/releases/download/v0.0.1/app-name-descrition.png" width="350px"/>
+
+2. Launch from Images Project's context menu
+<img src="https://github.com/supervisely-ecosystem/apply-classification-model-to-project/releases/download/v0.0.1/how-to-run.png" style="width: 100%;"/>
+
+
+
+# Screenshot
+
+<img src="https://github.com/supervisely-ecosystem/apply-classification-model-to-project/releases/download/v0.0.1/screenshot.png" style="width: 100%;"/>
+
 
 
