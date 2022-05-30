@@ -37,7 +37,7 @@ Application key points:
 # Usage
 
 
-<a data-key="sly-embeded-video-link" href="https://youtu.be/yCGgnEd7dtU" data-video-code="yCGgnEd7dtU">
+<a data-key="sly-embeded-video-link" href="https://youtu.be/yCGgnEd7dtU" data-video-code="yCGgnEd7dtU" target="_blank">
     <img src="https://github.com/supervisely-ecosystem/apply-classification-model-to-project/releases/download/v0.0.1/youtube-image-holder.jpg" alt="SLY_EMBEDED_VIDEO_LINK"  style="max-width:50%;">
 </a>
 
