@@ -12,8 +12,7 @@
   "port": 8000,
   "task_location": "workspace_tasks",
   "icon_background": "#FFFFFF",
-  "icon": "https://img.icons8.com/color/96/000000/tags--v1.png",
-  "icon_cover": true,
+  "icon": "https://github.com/supervisely-ecosystem/apply-classification-model-to-project/releases/download/v0.0.1/icon.png",
 
   "context_menu": {
     "target": [
