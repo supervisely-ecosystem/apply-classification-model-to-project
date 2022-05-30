@@ -7,7 +7,9 @@
 <p align="center">
   <a href="#Overview">Overview</a> •
   <a href="#Usage">Usage</a> •
-  <a href="#how-to-run">How to run</a>
+  <a href="#common-apps">Common Apps</a> •
+  <a href="#how-to-run">How to run</a> •
+  <a href="#screenshot">Screenshot</a>
 </p>
 
 
@@ -37,7 +39,7 @@ Application key points:
 # Usage
 
 
-<a data-key="sly-embeded-video-link" href="https://youtu.be/yCGgnEd7dtU" data-video-code="yCGgnEd7dtU" target="_blank">
+<a data-key="sly-embeded-video-link" href="https://youtu.be/yCGgnEd7dtU" data-video-code="yCGgnEd7dtU">
     <img src="https://github.com/supervisely-ecosystem/apply-classification-model-to-project/releases/download/v0.0.1/youtube-image-holder.jpg" alt="SLY_EMBEDED_VIDEO_LINK"  style="max-width:50%;">
 </a>
 
@@ -52,6 +54,12 @@ Application key points:
 2. Launch from Images Project's context menu
 <img src="https://github.com/supervisely-ecosystem/apply-classification-model-to-project/releases/download/v0.0.1/how-to-run.png" style="width: 100%;"/>
 
+
+# Common Apps
+
+1. [Serve MM Classification](https://ecosystem.supervise.ly/apps/supervisely-ecosystem/mmclassification/supervisely/serve) — NeuralNetwork classifier
+
+<img data-key="sly-module-link" data-module-slug="supervisely-ecosystem/mmclassification/supervisely/serve" src="https://github.com/supervisely-ecosystem/apply-classification-model-to-project/releases/download/v0.0.1/common-apps-1.png" width="350px"/>
 
 
 # Screenshot
