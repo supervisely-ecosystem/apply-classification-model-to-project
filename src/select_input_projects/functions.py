@@ -18,6 +18,6 @@ def download_project(project_selector_widget: ProjectSelector, state: StateJson,
     if os.path.exists(project_dir):
         supervisely.fs.clean_dir(project_dir)
 
-    supervisely.download_project(g.api, project_info.id, project_dir,
+    supervisely.download_project(g.api, project_info.id, project_dir, cache=g.file_cache,
                                  progress_cb=pbar.update, save_image_info=True, save_images=False)
 
