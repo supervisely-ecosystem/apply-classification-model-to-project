@@ -21,6 +21,9 @@ def get_classes_table_content(project_dir):
     class2color = f.get_class2color_from_meta(project_dir)
     class2shape = f.get_class2shape_from_meta(project_dir)
 
+    g.available_classes_names = []
+    g.selected_classes_list = []
+
     for class_name in class2stats.keys():
         if class2shape[class_name] in [sly.Bitmap.geometry_name(),
                                        sly.Rectangle.geometry_name(),
@@ -31,6 +34,8 @@ def get_classes_table_content(project_dir):
                 'shape': class2shape[class_name],
                 **class2stats[class_name]
             })
+
+            g.available_classes_names.append(class_name)
 
     return table_data
 
@@ -168,7 +173,7 @@ def update_project_items_by_predicted_labels(labels_batch, predicted_labels):
 
 
 def update_annotations_in_for_loop(state):
-    selected_classes_list = state['selectedClasses'] if state['selectedLabelingMode'] == "Classes" else None
+    selected_classes_list = g.selected_classes_list if state['selectedLabelingMode'] == "Classes" else None
     total = get_objects_num_by_classes(selected_classes_list) if state['selectedLabelingMode'] == "Classes" else g.output_project.total_items
 
     with card_widgets.labeling_progress(message='classifying data', total=total) as pbar:
@@ -306,7 +311,7 @@ def get_images_for_preview(state, img_num):
 
     g.output_project_meta = f.get_project_meta_merged_with_model_tags(g.project_dir, state)
 
-    selected_classes_list = state['selectedClasses'] if state['selectedLabelingMode'] == "Classes" else None
+    selected_classes_list = g.selected_classes_list if state['selectedLabelingMode'] == "Classes" else None
     labels_batch = []
     for label_info_to_annotate in f.get_images_to_label(g.project_dir, selected_classes_list):
         labels_batch.append(label_info_to_annotate)
@@ -335,3 +340,10 @@ def get_images_for_preview(state, img_num):
         })
 
     return images_for_preview
+
+
+def selected_classes_event(state):
+    g.selected_classes_list = []
+    for idx, class_name in enumerate(g.available_classes_names):
+        if state["selectedClasses"][idx] is True:
+            g.selected_classes_list.append(class_name)

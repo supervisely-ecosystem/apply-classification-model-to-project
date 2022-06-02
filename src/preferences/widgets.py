@@ -14,4 +14,7 @@ preview_grid_gallery = GridGallery(columns_number=3, show_opacity_slider=False, 
 labeling_progress = SlyTqdm()
 labeling_done_label = DoneLabel(text='done')
 
+select_all_classes_button = ElementButton(text='<i class="zmdi zmdi-check-all"></i> SELECT ALL', button_type='text', button_size='mini', plain=True)
+deselect_all_classes_button = ElementButton(text='<i class="zmdi zmdi-square-o"></i> DESELECT ALL', button_type='text', button_size='mini', plain=True)
+
 start_labeling_button = ElementButton(text='Apply Classifier to Images Project')

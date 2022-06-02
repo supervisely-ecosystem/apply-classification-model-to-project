@@ -36,6 +36,8 @@ def connect_to_model(state: supervisely.app.StateJson = Depends(supervisely.app.
 
         DataJson()['classes_table_content'] = preferences_functions.get_classes_table_content(g.project_dir)
 
+        state['selectedClasses'] = [False for _ in g.available_classes_names]
+
         DataJson()['model_connected'] = True
         preferences_widgets.preview_results_button.disabled = False
 
@@ -49,6 +51,7 @@ def connect_to_model(state: supervisely.app.StateJson = Depends(supervisely.app.
         DataJson()['labelingDone'] = False
 
         card_widgets.connect_model_button.loading = False
+        run_sync(state.synchronize_changes())
         run_sync(DataJson().synchronize_changes())
 
 

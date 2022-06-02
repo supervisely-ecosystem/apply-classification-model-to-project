@@ -33,6 +33,8 @@ templates_env = Jinja2Templates(directory=os.path.join(app_root_directory, 'temp
 DataJson()['current_step'] = 1
 
 batch_size = 128
+available_classes_names = []
+selected_classes_list = []
 
 project_dir = os.path.join(app_root_directory, 'tempfiles', 'project_dir')
 output_project_dir = os.path.join(app_root_directory, 'tempfiles', 'output_project_dir')
@@ -56,4 +58,4 @@ model_tag_suffix = ''
 
 updated_images_ids = set()
 
-selected_classes_list = None
+

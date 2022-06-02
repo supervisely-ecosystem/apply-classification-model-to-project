@@ -19,10 +19,10 @@ import src.sly_globals as g
 @card_widgets.select_preferences_button.add_route(app=g.app, route=card_widgets.select_preferences_button.Routes.BUTTON_CLICKED)
 def select_preferences_button(state: sly.app.StateJson = Depends(sly.app.StateJson.from_request)):
     try:
-        if state['selectedLabelingMode'] == "Classes" and len(state['selectedClasses']) == 0:
+        if state['selectedLabelingMode'] == "Classes" and len(g.selected_classes_list) == 0:
             raise ValueError('classes not selected')
 
-        g.selected_classes_list = state['selectedClasses']  # till Umar fixing state replacing
+        # g.selected_classes_list = state['selectedClasses']  # till Umar fixing state replacing
         DataJson()['labelingDone'] = False
         DataJson()['labelingStarted'] = False
 
@@ -51,8 +51,8 @@ def start_labeling_button_clicked(state: sly.app.StateJson = Depends(sly.app.Sta
     run_sync(DataJson().synchronize_changes())
 
     try:
-        state['selectedClasses'] = g.selected_classes_list  # till Umar fixing state replacing
-        if state['selectedLabelingMode'] == "Classes" and len(state['selectedClasses']) == 0:
+
+        if state['selectedLabelingMode'] == "Classes" and len(g.selected_classes_list) == 0:
             raise ValueError('classes not selected')
 
         g.model_tag_suffix = ''
@@ -93,7 +93,7 @@ def preview_results_button_clicked(state: sly.app.StateJson = Depends(sly.app.St
 
     run_sync(DataJson().synchronize_changes())
     try:
-        if state['selectedLabelingMode'] == "Classes" and len(state['selectedClasses']) == 0:
+        if state['selectedLabelingMode'] == "Classes" and len(g.selected_classes_list) == 0:
             raise ValueError('classes not selected')
 
         g.model_tag_suffix = ''
@@ -121,13 +121,18 @@ def preview_results_button_clicked(state: sly.app.StateJson = Depends(sly.app.St
 
 @g.app.post('/classes_selection_change/')
 def selected_classes_changed(state: sly.app.StateJson = Depends(sly.app.StateJson.from_request)):
-    pass
-    # if len(state['selectedClasses']) > 0:
-    #     card_widgets.select_preferences_button.disabled = False
-    # else:
-    #     card_widgets.select_preferences_button.disabled = True
-
-    # run_sync(state.synchronize_changes())
-    # run_sync(DataJson().synchronize_changes())
+    card_functions.selected_classes_event(state)
 
 
+@card_widgets.select_all_classes_button.add_route(app=g.app, route=ElementButton.Routes.BUTTON_CLICKED)
+def select_all_classes_button_clicked(state: sly.app.StateJson = Depends(sly.app.StateJson.from_request)):
+    state["selectedClasses"] = [True] * len(g.available_classes_names)
+    run_sync(state.synchronize_changes())
+    card_functions.selected_classes_event(state)
+
+
+@card_widgets.deselect_all_classes_button.add_route(app=g.app, route=ElementButton.Routes.BUTTON_CLICKED)
+def deselect_all_classes_button_clicked(state: sly.app.StateJson = Depends(sly.app.StateJson.from_request)):
+    state["selectedClasses"] = [False] * len(g.available_classes_names)
+    run_sync(state.synchronize_changes())
+    card_functions.selected_classes_event(state)
