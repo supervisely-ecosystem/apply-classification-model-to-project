@@ -4,7 +4,9 @@
   "version": "2.0.0",
   "categories": [
     "neural network",
-    "labeling tools"
+    "images",
+    "classification",
+    "inference interfaces"
   ],
   "description": "label project images or objects using NN",
   "docker_image": "supervisely/base-py-sdk:6.18.1",
@@ -13,13 +15,11 @@
   "task_location": "workspace_tasks",
   "icon_background": "#FFFFFF",
   "icon": "https://github.com/supervisely-ecosystem/apply-classification-model-to-project/releases/download/v0.0.1/icon.png",
-
   "context_menu": {
     "target": [
       "images_project"
     ],
     "context_root": "Neural Networks"
   },
-
   "instance_version": "6.4.49"
 }
