@@ -10,7 +10,7 @@ import src.preferences
 
 @g.app.get("/")
 @available_after_shutdown(app=g.app)
-def read_index(request: Request):
+def read_index(request: Request = None):
     return g.templates_env.TemplateResponse('index.html', {'request': request})
 
 @g.app.on_event("shutdown")
