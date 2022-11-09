@@ -232,15 +232,16 @@ def upload_project():
         }
 
 
-def stringify_label_tags(predicted_tags):
+def stringify_label_tags(predicted_tags, cls_mode=None):
     final_message = ''
 
     for index, tag in enumerate(predicted_tags):
         value = ''
         if tag.value is not None:
             value = f":{round(tag.value, 3)}"
-
-        final_message += f'top@{index + 1} — {tag.name}{value}<br>'
+        if cls_mode is None or cls_mode == 'one_label':
+            final_message += f'top@{index + 1} — '
+        final_message += f'{tag.name}{value}<br>'
 
     return final_message
 
@@ -341,7 +342,7 @@ def get_images_for_preview(state, img_num):
 
         images_for_preview.append({
             'url': get_cropped_image_url(label_b, state) if len(label_b) == 2 else label_b.path_original,
-            'title': stringify_label_tags(predicted_label.tags) if len(label_b) == 2 else stringify_label_tags(predicted_label)
+            'title': stringify_label_tags(predicted_label.tags, state["cls_mode"]) if len(label_b) == 2 else stringify_label_tags(predicted_label, state["cls_mode"])
         })
 
     return images_for_preview
