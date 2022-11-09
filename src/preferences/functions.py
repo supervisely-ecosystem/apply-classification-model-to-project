@@ -179,6 +179,9 @@ def update_annotations_in_for_loop(state):
     with card_widgets.labeling_progress(message='classifying data', total=total) as pbar:
         labels_batch = []
 
+        topN = state["topN"]
+        if state["cls_mode"] == "multi_label":
+            topN = None
         for label_info_to_annotate in f.get_images_to_label(g.project_dir, selected_classes_list):
             labels_batch.append(label_info_to_annotate)
             pbar.update()
@@ -187,7 +190,7 @@ def update_annotations_in_for_loop(state):
                 predicted_labels = get_predicted_labels_for_batch(
                     labels_batch=labels_batch,
                     model_session_id=state['model_id'],
-                    top_n=state['topN'],
+                    top_n=topN,
                     padding=state['padding']
                 )
                 update_project_items_by_predicted_labels(labels_batch, predicted_labels)
@@ -197,7 +200,7 @@ def update_annotations_in_for_loop(state):
             predicted_labels = get_predicted_labels_for_batch(
                 labels_batch=labels_batch,
                 model_session_id=state['model_id'],
-                top_n=state['topN'],
+                top_n=topN,
                 padding=state['padding']
             )
             update_project_items_by_predicted_labels(labels_batch, predicted_labels)
@@ -320,11 +323,13 @@ def get_images_for_preview(state, img_num):
 
     random.shuffle(labels_batch)
     labels_batch = labels_batch[:img_num]
-
+    topN = state["topN"]
+    if state["cls_mode"] == "multi_label":
+        topN = None
     predicted_labels = get_predicted_labels_for_batch(
         labels_batch=labels_batch,
         model_session_id=state['model_id'],
-        top_n=state['topN'],
+        top_n=topN,
         padding=state['padding']
     )
 
