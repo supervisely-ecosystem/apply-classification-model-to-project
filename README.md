@@ -34,6 +34,7 @@ Application key points:
 - Add custom suffix to predictions
 - Adjust top@N predictions number
 - Preview classification results
+- Supports multi-label classification (from v1.2.0)
 
 # Usage
 
