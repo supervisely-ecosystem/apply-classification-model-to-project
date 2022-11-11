@@ -21,7 +21,8 @@
             </sly-field>
             <sly-field title="Apply topN Predictions"
                        :description="`Set number of predictions which be applied to ${ state.selectedLabelingMode }`"
-                       style="margin: 10px 0">
+                       style="margin: 10px 0"
+                       v-if="state.cls_mode == 'one_label'">
                 <el-input-number
                         :disabled="data.current_step !== 3"
                         v-model="state.topN" :min="1" :max="100"></el-input-number>

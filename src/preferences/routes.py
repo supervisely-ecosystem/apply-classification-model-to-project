@@ -62,6 +62,7 @@ def start_labeling_button_clicked(state: sly.app.StateJson = Depends(sly.app.Sta
         card_functions.upload_project()
 
         DataJson()['labelingDone'] = True
+        sly.app.fastapi.shutdown()
 
     except Exception as ex:
         logger.warn(f'Cannot start labeling: {repr(ex)}', exc_info=True)

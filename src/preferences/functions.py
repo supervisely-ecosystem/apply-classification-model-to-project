@@ -179,6 +179,9 @@ def update_annotations_in_for_loop(state):
     with card_widgets.labeling_progress(message='classifying data', total=total) as pbar:
         labels_batch = []
 
+        topN = state["topN"]
+        if state["cls_mode"] == "multi_label":
+            topN = None
         for label_info_to_annotate in f.get_images_to_label(g.project_dir, selected_classes_list):
             labels_batch.append(label_info_to_annotate)
             pbar.update()
@@ -187,7 +190,7 @@ def update_annotations_in_for_loop(state):
                 predicted_labels = get_predicted_labels_for_batch(
                     labels_batch=labels_batch,
                     model_session_id=state['model_id'],
-                    top_n=state['topN'],
+                    top_n=topN,
                     padding=state['padding']
                 )
                 update_project_items_by_predicted_labels(labels_batch, predicted_labels)
@@ -197,7 +200,7 @@ def update_annotations_in_for_loop(state):
             predicted_labels = get_predicted_labels_for_batch(
                 labels_batch=labels_batch,
                 model_session_id=state['model_id'],
-                top_n=state['topN'],
+                top_n=topN,
                 padding=state['padding']
             )
             update_project_items_by_predicted_labels(labels_batch, predicted_labels)
@@ -229,15 +232,16 @@ def upload_project():
         }
 
 
-def stringify_label_tags(predicted_tags):
+def stringify_label_tags(predicted_tags, cls_mode=None):
     final_message = ''
 
     for index, tag in enumerate(predicted_tags):
         value = ''
         if tag.value is not None:
             value = f":{round(tag.value, 3)}"
-
-        final_message += f'top@{index + 1} — {tag.name}{value}<br>'
+        if cls_mode is None or cls_mode == 'one_label':
+            final_message += f'top@{index + 1} — '
+        final_message += f'{tag.name}{value}<br>'
 
     return final_message
 
@@ -320,11 +324,13 @@ def get_images_for_preview(state, img_num):
 
     random.shuffle(labels_batch)
     labels_batch = labels_batch[:img_num]
-
+    topN = state["topN"]
+    if state["cls_mode"] == "multi_label":
+        topN = None
     predicted_labels = get_predicted_labels_for_batch(
         labels_batch=labels_batch,
         model_session_id=state['model_id'],
-        top_n=state['topN'],
+        top_n=topN,
         padding=state['padding']
     )
 
@@ -336,7 +342,7 @@ def get_images_for_preview(state, img_num):
 
         images_for_preview.append({
             'url': get_cropped_image_url(label_b, state) if len(label_b) == 2 else label_b.path_original,
-            'title': stringify_label_tags(predicted_label.tags) if len(label_b) == 2 else stringify_label_tags(predicted_label)
+            'title': stringify_label_tags(predicted_label.tags, state["cls_mode"]) if len(label_b) == 2 else stringify_label_tags(predicted_label, state["cls_mode"])
         })
 
     return images_for_preview

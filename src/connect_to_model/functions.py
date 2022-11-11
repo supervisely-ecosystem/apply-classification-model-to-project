@@ -20,6 +20,8 @@ def connect_to_model(state):
     g.model_data['model_meta'] = sly.ProjectMeta.from_json(
         validate_errors(g.api.task.send_request(model_id, "get_model_meta", data={})))
     g.model_data['tags_examples'] = validate_errors(g.api.task.send_request(model_id, "get_tags_examples", data={}))
+    if "classification_mode" in g.model_data["info"].keys():
+        state["cls_mode"] = g.model_data["info"]["classification_mode"]
 
 
 def get_class_color_from_meta(class_name):
