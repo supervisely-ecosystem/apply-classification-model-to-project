@@ -15,6 +15,7 @@ StateJson()['selectedLabelingMode'] = "Classes"
 StateJson()['outputProject'] = "New"
 StateJson()['padding'] = 0
 StateJson()['topN'] = 1
+StateJson()['batchSize'] = 128
 StateJson()['addConfidence'] = True
 StateJson()['addSuffix'] = False
 StateJson()['suffixValue'] = None

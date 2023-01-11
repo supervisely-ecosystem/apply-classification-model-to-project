@@ -186,7 +186,7 @@ def update_annotations_in_for_loop(state):
             labels_batch.append(label_info_to_annotate)
             pbar.update()
 
-            if len(labels_batch) == g.batch_size:
+            if len(labels_batch) == state["batchSize"]:
                 predicted_labels = get_predicted_labels_for_batch(
                     labels_batch=labels_batch,
                     model_session_id=state['model_id'],
