@@ -28,7 +28,7 @@
                         v-model="state.topN" :min="1" :max="100"></el-input-number>
             </sly-field>
             <sly-field title="Inference batch size"
-                       :description="`Set number of samples for each applying of Classifier"
+                       description="Set number of samples for each applying of Classifier"
                        style="margin: 10px 0">
                 <el-input-number
                         :disabled="data.current_step !== 3"
