@@ -12,7 +12,7 @@ preview_results_button.disabled = True
 preview_grid_gallery = GridGallery(columns_number=3, show_opacity_slider=False, sync_views=True, widget_id="preview_grid_gallery")
 
 labeling_progress = SlyTqdm(widget_id="labeling_progress")
-labeling_done_label = DoneLabel(text='done', widget_id="")
+labeling_done_label = DoneLabel(text='done', widget_id="labeling_done_label")
 
 select_all_classes_button = ElementButton(text='<i class="zmdi zmdi-check-all"></i> SELECT ALL', button_type='text', button_size='mini', plain=True, widget_id="select_all_classes_button")
 deselect_all_classes_button = ElementButton(text='<i class="zmdi zmdi-square-o"></i> DESELECT ALL', button_type='text', button_size='mini', plain=True, widget_id="deselect_all_classes_button")
