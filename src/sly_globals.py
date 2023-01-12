@@ -14,10 +14,7 @@ from supervisely.app.fastapi import create, Jinja2Templates
 app_root_directory = str(Path(__file__).parent.absolute().parents[0])
 logger.info(f"App root directory: {app_root_directory}")
 
-app_cache_dir = os.path.join(app_root_directory, 'tempfiles', 'cache')
-
 api: sly.Api = sly.Api.from_env()
-file_cache = FileCache(name="FileCache", storage_root=app_cache_dir)
 app = FastAPI()
 sly_app = create()
 
@@ -32,7 +29,6 @@ templates_env = Jinja2Templates(directory=os.path.join(app_root_directory, 'temp
 
 DataJson()['current_step'] = 1
 
-batch_size = 128
 available_classes_names = []
 selected_classes_list = []
 

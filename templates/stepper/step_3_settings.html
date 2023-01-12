@@ -27,6 +27,13 @@
                         :disabled="data.current_step !== 3"
                         v-model="state.topN" :min="1" :max="100"></el-input-number>
             </sly-field>
+            <sly-field title="Inference batch size"
+                       description="Set number of samples for each applying of Classifier"
+                       style="margin: 10px 0">
+                <el-input-number
+                        :disabled="data.current_step !== 3"
+                        v-model="state.batchSize" :min="1" :max="1000"></el-input-number>
+            </sly-field>
 
             {% include 'stepper/3_preferences/add_confedence.html' %}
             {% include 'stepper/3_preferences/additional_suffix.html' %}
