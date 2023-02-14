@@ -21,6 +21,7 @@ StateJson()['addSuffix'] = False
 StateJson()['suffixValue'] = None
 
 StateJson()['selectedClasses'] = []
+StateJson()['usePerClassThresholds'] = False
 DataJson()['classes_table_content'] = []
 
 

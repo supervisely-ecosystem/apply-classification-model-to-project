@@ -28,6 +28,7 @@ DataJson()['all_classes_collapsed'] = True
 
 StateJson()['activeNames'] = []
 StateJson()['cls_mode'] = 'one_label'
+StateJson()['confThresh'] = {}
 
 
 

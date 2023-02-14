@@ -9,7 +9,7 @@ import numpy as np
 import src.sly_functions as f
 import src.sly_globals as g
 import supervisely as sly
-from supervisely.app import DataJson
+from supervisely.app import DataJson, StateJson
 
 import src.preferences.widgets as card_widgets
 
@@ -91,6 +91,8 @@ def get_tags_list_for_predictions(predictions_row):
         if tag_meta.value_type == sly.TagValueType.NONE:
             tags_list.append(sly.Tag(meta=tag_meta))
         else:
+            if value < StateJson()['confThresh'][name][0] or value > StateJson()['confThresh'][name][1]:
+                continue
             tags_list.append(sly.Tag(meta=tag_meta, value=value))
 
     return tags_list

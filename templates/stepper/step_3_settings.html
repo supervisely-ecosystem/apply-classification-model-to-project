@@ -34,7 +34,38 @@
                         :disabled="data.current_step !== 3"
                         v-model="state.batchSize" :min="1" :max="1000"></el-input-number>
             </sly-field>
-
+            <sly-field title="Per-class confidence thresholds"
+                       description="Can be used only with multi-label classification models"
+                       v-if="state.cls_mode == 'multi_label'"
+                       style="margin: 10px 0">
+                <el-checkbox v-model="state.usePerClassThresholds">Use per-class thresholds</el-checkbox>
+                <table v-if="state.usePerClassThresholds">
+                    <tr v-for="tag in data.modelClasses" :name="tag.name">
+                        <td style="min-width: 35%; display: inline-block;">
+                            <i class="zmdi zmdi-label mr5" :style="{color: tag.color}"></i>{{ tag.name }}
+                        </td>
+                        <td>
+                            From: 
+                            <el-input-number 
+                                :disabled="data.current_step !== 3" 
+                                v-model="state.confThresh[tag.name][0]" 
+                                min="0" 
+                                max="1"
+                            ></el-input-number>
+                        </td>
+                        <td>
+                            To: 
+                            <el-input-number 
+                                :disabled="data.current_step !== 3"
+                                v-model="state.confThresh[tag.name][1]"
+                                min="0" 
+                                max="1"
+                            ></el-input-number>
+                        </td>
+                    </tr>
+                </table>
+            </sly-field>
+            
             {% include 'stepper/3_preferences/add_confedence.html' %}
             {% include 'stepper/3_preferences/additional_suffix.html' %}
         </div>
