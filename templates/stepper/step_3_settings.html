@@ -40,7 +40,7 @@
                        style="margin: 10px 0">
                 <el-checkbox v-model="state.usePerClassThresholds">Use per-class thresholds</el-checkbox>
                 <table v-if="state.usePerClassThresholds">
-                    <tr v-for="(tag, tag_ind) in data.modelClasses">
+                    <tr v-for="tag in data.modelClasses">
                         <td style="min-width: 35%; display: inline-block;">
                             <i class="zmdi zmdi-label mr5" :style="{color: tag.color}"></i>{{ tag.name }}
                         </td>
@@ -48,7 +48,7 @@
                             From: 
                             <el-input-number 
                                 :disabled="data.current_step !== 3" 
-                                v-model="state.confThresh[tag_ind][0]" 
+                                v-model="tag.confFrom" 
                                 min="0" 
                                 max="1"
                             ></el-input-number>
@@ -57,7 +57,7 @@
                             To: 
                             <el-input-number 
                                 :disabled="data.current_step !== 3"
-                                v-model="state.confThresh[tag_ind][1]"
+                                v-model="tag.confTo"
                                 min="0" 
                                 max="1"
                             ></el-input-number>
