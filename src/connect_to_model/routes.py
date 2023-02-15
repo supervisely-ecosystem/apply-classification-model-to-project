@@ -51,7 +51,7 @@ def connect_to_model(state: supervisely.app.StateJson = Depends(supervisely.app.
         DataJson()['labelingDone'] = False
 
         card_widgets.connect_model_button.loading = False
-        run_sync(state.synchronize_changes())
+        run_sync(StateJson().synchronize_changes())
         run_sync(DataJson().synchronize_changes())
 
 
