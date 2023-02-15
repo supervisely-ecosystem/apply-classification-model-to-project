@@ -32,8 +32,6 @@ def connect_to_model(state: supervisely.app.StateJson = Depends(supervisely.app.
         card_functions.connect_to_model(state)
 
         DataJson()['modelClasses'] = card_functions.get_model_classes_list()
-        for class_name in DataJson()['modelClasses']:
-            StateJson()['confThresh'].append([0.0, 1.0])
         DataJson()['model_info'] = g.model_data.get('info')
 
         DataJson()['classes_table_content'] = preferences_functions.get_classes_table_content(g.project_dir)

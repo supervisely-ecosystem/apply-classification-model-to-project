@@ -55,7 +55,9 @@ def get_model_classes_list():
         model_classes_list.append({
             'name': class_name,
             'color': class_color,
-            'images': class_images[:10]
+            'images': class_images[:10],
+            'confFrom': 0.0,
+            'confTo': 1.0,
         })
 
     return model_classes_list
