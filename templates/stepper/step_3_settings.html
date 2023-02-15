@@ -41,7 +41,7 @@
                 <el-checkbox v-model="state.usePerClassThresholds">Use per-class thresholds</el-checkbox>
                 <table v-if="state.usePerClassThresholds">
                     <tr v-for="tag in data.modelClasses">
-                        <td style="min-width: 35%; display: inline-block;">
+                        <td>
                             <i class="zmdi zmdi-label mr5" :style="{color: tag.color}"></i>{{ tag.name }}
                         </td>
                         <td>

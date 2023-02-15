@@ -91,7 +91,8 @@ def get_tags_list_for_predictions(predictions_row):
         if tag_meta.value_type == sly.TagValueType.NONE:
             tags_list.append(sly.Tag(meta=tag_meta))
         else:
-            if value < StateJson()['confThresh'][name][0] or value > StateJson()['confThresh'][name][1]:
+            class_info = [class_info for class_info in DataJson()['modelClasses'] if class_info['name'] == name][0]
+            if value < class_info["confFrom"] or value > class_info["confTo"]:
                 continue
             tags_list.append(sly.Tag(meta=tag_meta, value=value))
 
