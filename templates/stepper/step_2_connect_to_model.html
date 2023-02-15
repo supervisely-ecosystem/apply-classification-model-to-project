@@ -39,7 +39,7 @@
         </div>
 
 
-        <div v-if="data.modelClasses && data.model_connected" style="margin: 0 10px 0 0">
+        <div v-if="state.modelClasses && data.model_connected" style="margin: 0 10px 0 0">
             <div class="pretty-hr"></div>
 
             <div style="display: flex; flex-direction: row; width: 100%; justify-content: space-between; align-items: center">
@@ -59,7 +59,7 @@
 
             <el-collapse style="width: 100%;"
                          v-model="state.activeNames">
-                <el-collapse-item v-for="tag in data.modelClasses" :name="tag.name">
+                <el-collapse-item v-for="tag in state.modelClasses" :name="tag.name">
                     <template slot="title">
                         <span style="min-width: 35%; display: inline-block;">
                             <i class="zmdi zmdi-label mr5" :style="{color: tag.color}"></i>{{ tag.name }}

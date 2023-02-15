@@ -23,7 +23,7 @@ DataJson()['model_info'] = None
 DataJson()['model_connected'] = False
 StateJson()['model_id'] = None
 
-DataJson()['modelClasses'] = None
+StateJson()['modelClasses'] = None
 DataJson()['all_classes_collapsed'] = True
 
 StateJson()['activeNames'] = []

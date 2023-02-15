@@ -40,7 +40,7 @@
                        style="margin: 10px 0">
                 <el-checkbox v-model="state.usePerClassThresholds">Use per-class thresholds</el-checkbox>
                 <table v-if="state.usePerClassThresholds">
-                    <tr v-for="tag in data.modelClasses">
+                    <tr v-for="tag in state.modelClasses">
                         <td>
                             <i class="zmdi zmdi-label mr5" :style="{color: tag.color}"></i>{{ tag.name }}
                         </td>
@@ -51,6 +51,7 @@
                                 v-model="tag.confFrom" 
                                 min="0" 
                                 max="1"
+                                step="0.1"
                             ></el-input-number>
                         </td>
                         <td>
@@ -60,6 +61,7 @@
                                 v-model="tag.confTo"
                                 min="0" 
                                 max="1"
+                                step="0.1"
                             ></el-input-number>
                         </td>
                     </tr>

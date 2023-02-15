@@ -31,7 +31,7 @@ def connect_to_model(state: supervisely.app.StateJson = Depends(supervisely.app.
     try:
         card_functions.connect_to_model(state)
 
-        DataJson()['modelClasses'] = card_functions.get_model_classes_list()
+        StateJson()['modelClasses'] = card_functions.get_model_classes_list()
         DataJson()['model_info'] = g.model_data.get('info')
 
         DataJson()['classes_table_content'] = preferences_functions.get_classes_table_content(g.project_dir)
@@ -67,7 +67,7 @@ def reselect_projects_button_clicked(state: supervisely.app.StateJson = Depends(
 def toggle_all_classes(state: supervisely.app.StateJson = Depends(supervisely.app.StateJson.from_request)):
     if DataJson()['all_classes_collapsed'] is True:
         # card_widgets.toggle_all_previews_button.text = 'hide all'
-        state['activeNames'] = [class_info['name'] for class_info in DataJson()['modelClasses']]
+        state['activeNames'] = [class_info['name'] for class_info in StateJson()['modelClasses']]
     else:
         # card_widgets.toggle_all_previews_button.text = 'show all'
         state['activeNames'] = []
