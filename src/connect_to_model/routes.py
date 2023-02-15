@@ -31,7 +31,7 @@ def connect_to_model(state: supervisely.app.StateJson = Depends(supervisely.app.
     try:
         card_functions.connect_to_model(state)
 
-        StateJson()['modelClasses'] = card_functions.get_model_classes_list()
+        state['modelClasses'] = card_functions.get_model_classes_list()
         DataJson()['model_info'] = g.model_data.get('info')
 
         DataJson()['classes_table_content'] = preferences_functions.get_classes_table_content(g.project_dir)
@@ -51,7 +51,7 @@ def connect_to_model(state: supervisely.app.StateJson = Depends(supervisely.app.
         DataJson()['labelingDone'] = False
 
         card_widgets.connect_model_button.loading = False
-        StateJson().send_changes()
+        state.send_changes()
         DataJson().send_changes()
 
 
