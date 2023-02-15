@@ -51,8 +51,8 @@ def connect_to_model(state: supervisely.app.StateJson = Depends(supervisely.app.
         DataJson()['labelingDone'] = False
 
         card_widgets.connect_model_button.loading = False
-        run_sync(StateJson().synchronize_changes())
-        run_sync(DataJson().synchronize_changes())
+        StateJson().send_changes()
+        DataJson().send_changes()
 
 
 @card_widgets.reselect_model_button.add_route(app=g.app, route=ElementButton.Routes.BUTTON_CLICKED)
