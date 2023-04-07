@@ -2,6 +2,7 @@ import functools
 import os
 import random
 import time
+from requests.exceptions import RetryError
 
 import cv2
 import numpy as np
@@ -133,7 +134,7 @@ def get_predicted_tags_for_images(labels_batch, predictions):
 
 def get_predicted_labels_for_batch(labels_batch, model_session_id, top_n, padding):
     inference_data = get_data_to_inference(labels_batch)
-    predictions = g.api.task.send_request(model_session_id, "inference_batch_ids", data={
+    predictions = g.api1.task.send_request(model_session_id, "inference_batch_ids", data={
         'topn': top_n,
         'pad': padding,
         **inference_data
@@ -189,7 +190,8 @@ def update_annotations_in_for_loop(state):
             labels_batch.append(label_info_to_annotate)
             pbar.update()
 
-            if len(labels_batch) == state["batchSize"]:
+            batch_size = g.batch_size_reduced or state["batchSize"]
+            if len(labels_batch) == batch_size:
                 predicted_labels = get_predicted_labels_for_batch(
                     labels_batch=labels_batch,
                     model_session_id=state['model_id'],
@@ -216,7 +218,21 @@ def label_project(state):
     g.output_project = sly.Project(g.output_project_dir, mode=sly.OpenMode.READ)
     g.output_project_meta = sly.Project(g.output_project_dir, mode=sly.OpenMode.READ).meta
 
-    update_annotations_in_for_loop(state=state)
+    done = False
+    while not done:
+        try:
+            update_annotations_in_for_loop(state=state)
+            done = True
+        except RetryError as ex:
+            # reducing batch_size (8, 4, 2, 1, 0)
+            if g.batch_size_reduced is None:
+                g.batch_size_reduced = 8
+            else:
+                g.batch_size_reduced = g.batch_size_reduced // 2
+            sly.logger.warn(f"Reducing batch_size to {g.batch_size_reduced}")
+
+        if g.batch_size_reduced <= 0:
+            raise Exception(f"Can't reduce batch_size further, retry limit exceeded.")
 
 
 def upload_project():

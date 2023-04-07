@@ -15,8 +15,12 @@ app_root_directory = str(Path(__file__).parent.absolute().parents[0])
 logger.info(f"App root directory: {app_root_directory}")
 
 api: sly.Api = sly.Api.from_env()
+api1: sly.Api = sly.Api.from_env(retry_count=2)  # for batch_size reducing
 app = FastAPI()
 sly_app = create()
+
+# from dotenv import load_dotenv
+# load_dotenv(os.path.join(app_root_directory, "debug.env"))
 
 TEAM_ID = int(os.getenv('context.teamId'))
 WORKSPACE_ID = int(os.getenv('context.workspaceId'))
@@ -54,4 +58,4 @@ model_tag_suffix = ''
 
 updated_images_ids = set()
 
-
+batch_size_reduced = None
