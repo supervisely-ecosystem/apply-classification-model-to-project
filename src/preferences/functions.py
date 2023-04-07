@@ -231,8 +231,8 @@ def label_project(state):
                 g.batch_size_reduced = g.batch_size_reduced // 2
             sly.logger.warn(f"Reducing batch_size to {g.batch_size_reduced}")
 
-        if g.batch_size_reduced <= 0:
-            raise Exception(f"Can't reduce batch_size further, retry limit exceeded.")
+            if g.batch_size_reduced <= 0:
+                raise Exception(f"Can't reduce batch_size further, retry limit exceeded.")
 
 
 def upload_project():
