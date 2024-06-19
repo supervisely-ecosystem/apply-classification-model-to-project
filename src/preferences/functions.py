@@ -2,6 +2,7 @@ import functools
 import os
 import random
 import time
+from typing import Dict
 from requests.exceptions import RetryError
 
 import cv2
@@ -11,6 +12,7 @@ import src.sly_functions as f
 import src.sly_globals as g
 import supervisely as sly
 from supervisely.app import DataJson, StateJson
+from supervisely.nn.inference.session import AsyncInferenceIterator, SessionJSON
 
 import src.preferences.widgets as card_widgets
 
@@ -132,13 +134,51 @@ def get_predicted_tags_for_images(labels_batch, predictions):
     return predicted_tags_collections
 
 
-def get_predicted_labels_for_batch(labels_batch, model_session_id, top_n, padding):
+class InferenceSession(SessionJSON):
+    def inference_batch_ids_async(self, inference_settings: Dict, logger=None, process_fn=None):
+        if logger is None:
+            logger = sly.logger
+        if self._async_inference_uuid:
+            logger.info(
+                "Trying to run a new inference while `_async_inference_uuid` already exists. Stopping the old one..."
+            )
+            try:
+                self.stop_async_inference()
+                self._on_async_inference_end()
+            except Exception as exc:
+                logger.error(f"An error has occurred while stopping the previous inference. {exc}")
+        endpoint = "inference_batch_ids_async"
+        url = f"{self._base_url}/{endpoint}"
+        json_body = self._get_default_json_body()
+        state = json_body["state"]
+        state.update(inference_settings)
+        resp = self._post(url, json=json_body).json()
+        self._async_inference_uuid = resp["inference_request_uuid"]
+        self._stop_async_inference_flag = False
+
+        resp, has_started = self._wait_for_async_inference_start()
+        logger.info("Inference has started:", extra={"response": resp})
+        frame_iterator = AsyncInferenceIterator(
+            resp["progress"]["total"], self, process_fn=process_fn
+        )
+        return frame_iterator
+
+
+
+def get_predicted_labels_for_batch(labels_batch, model_session_id, top_n, padding, progress_cb=None):
     inference_data = get_data_to_inference(labels_batch)
-    predictions = g.api1.task.send_request(model_session_id, "inference_batch_ids", data={
-        'topn': top_n,
-        'pad': padding,
-        **inference_data
-    })
+    try:
+        session = InferenceSession(g.api1, model_session_id)
+        predictions = []
+        for prediction in session.inference_batch_ids_async({**inference_data, 'topn': top_n, 'pad': padding}):
+            predictions.append(prediction)
+            progress_cb()
+    except Exception:
+        predictions = g.api1.task.send_request(model_session_id, "inference_batch_ids", data={
+            'topn': top_n,
+            'pad': padding,
+            **inference_data
+        })
 
     if len(labels_batch[0]) == 2:  # labels
         return add_predicted_tags_to_labels(labels_batch, predictions)
