@@ -2,7 +2,7 @@ import functools
 import os
 import random
 import time
-from typing import Dict
+from typing import Any, Dict
 from requests.exceptions import RetryError
 
 import cv2
@@ -135,6 +135,23 @@ def get_predicted_tags_for_images(labels_batch, predictions):
 
 
 class InferenceSession(SessionJSON):
+    def __init__(self, api: sly.Api, task_id: int):
+        super().__init__(api, task_id)
+    
+    def _get_from_endpoint(self, endpoint) -> Dict[str, Any]:
+        json_body = self._get_default_json_body()
+        resp = self.api.task.send_request(self._task_id, endpoint, json_body["state"])
+        return resp
+    
+    def _get_from_endpoint_for_async_inference(self, endpoint) -> Dict[str, Any]:
+        json_body = self._get_default_json_body_for_async_inference()
+        resp = self.api.task.send_request(self._task_id, endpoint, json_body["state"])
+        return resp
+    
+    def _pop_pending_results(self) -> Dict[str, Any]:
+        endpoint = "pop_async_inference_results"
+        return self._get_from_endpoint_for_async_inference(endpoint)
+
     def inference_batch_ids_async(self, inference_settings: Dict, logger=None, process_fn=None):
         if logger is None:
             logger = sly.logger
@@ -148,11 +165,11 @@ class InferenceSession(SessionJSON):
             except Exception as exc:
                 logger.error(f"An error has occurred while stopping the previous inference. {exc}")
         endpoint = "inference_batch_ids_async"
-        url = f"{self._base_url}/{endpoint}"
-        json_body = self._get_default_json_body()
-        state = json_body["state"]
+
+        state = {}
         state.update(inference_settings)
-        resp = self._post(url, json=json_body).json()
+        resp = self.api.task.send_request(self._task_id, endpoint, state)
+        # resp = self._post(url, json=json_body).json()
         self._async_inference_uuid = resp["inference_request_uuid"]
         self._stop_async_inference_flag = False
 
