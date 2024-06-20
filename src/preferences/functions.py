@@ -148,6 +148,11 @@ class InferenceSession(SessionJSON):
         resp = self.api.task.send_request(self._task_id, endpoint, json_body["state"])
         return resp
     
+    def _get_inference_result(self):
+        json_body = self._get_default_json_body_for_async_inference()
+        resp = self.api.task.send_request(self._task_id, "get_inference_result", json_body["state"])
+        return resp
+    
     def _pop_pending_results(self) -> Dict[str, Any]:
         endpoint = "pop_async_inference_results"
         return self._get_from_endpoint_for_async_inference(endpoint)
