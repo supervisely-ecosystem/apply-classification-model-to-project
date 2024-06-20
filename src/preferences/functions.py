@@ -2,6 +2,7 @@ import functools
 import os
 import random
 import time
+from typing import Any, Dict
 from requests.exceptions import RetryError
 
 import cv2
@@ -11,6 +12,7 @@ import src.sly_functions as f
 import src.sly_globals as g
 import supervisely as sly
 from supervisely.app import DataJson, StateJson
+from supervisely.nn.inference.session import AsyncInferenceIterator, SessionJSON
 
 import src.preferences.widgets as card_widgets
 
@@ -132,8 +134,57 @@ def get_predicted_tags_for_images(labels_batch, predictions):
     return predicted_tags_collections
 
 
-def get_predicted_labels_for_batch(labels_batch, model_session_id, top_n, padding):
+class InferenceSession(SessionJSON):
+    def __init__(self, api: sly.Api, task_id: int):
+        super().__init__(api, task_id)
+    
+    def _get_from_endpoint(self, endpoint) -> Dict[str, Any]:
+        json_body = self._get_default_json_body()
+        resp = self.api.task.send_request(self._task_id, endpoint, json_body["state"])
+        return resp
+    
+    def _get_from_endpoint_for_async_inference(self, endpoint) -> Dict[str, Any]:
+        json_body = self._get_default_json_body_for_async_inference()
+        resp = self.api.task.send_request(self._task_id, endpoint, json_body["state"])
+        return resp
+    
+    def _pop_pending_results(self) -> Dict[str, Any]:
+        endpoint = "pop_async_inference_results"
+        return self._get_from_endpoint_for_async_inference(endpoint)
+
+    def inference_batch_ids_async(self, inference_settings: Dict, logger=None, process_fn=None):
+        if logger is None:
+            logger = sly.logger
+        if self._async_inference_uuid:
+            logger.info(
+                "Trying to run a new inference while `_async_inference_uuid` already exists. Stopping the old one..."
+            )
+            try:
+                self.stop_async_inference()
+                self._on_async_inference_end()
+            except Exception as exc:
+                logger.error(f"An error has occurred while stopping the previous inference. {exc}")
+        endpoint = "inference_batch_ids_async"
+
+        state = {}
+        state.update(inference_settings)
+        resp = self.api.task.send_request(self._task_id, endpoint, state)
+        # resp = self._post(url, json=json_body).json()
+        self._async_inference_uuid = resp["inference_request_uuid"]
+        self._stop_async_inference_flag = False
+
+        resp, has_started = self._wait_for_async_inference_start()
+        logger.info("Inference has started:", extra={"response": resp})
+        frame_iterator = AsyncInferenceIterator(
+            resp["progress"]["total"], self, process_fn=process_fn
+        )
+        return frame_iterator
+
+
+
+def get_predicted_labels_for_batch(labels_batch, model_session_id, top_n, padding, progress_cb=None):
     inference_data = get_data_to_inference(labels_batch)
+
     predictions = g.api1.task.send_request(model_session_id, "inference_batch_ids", data={
         'topn': top_n,
         'pad': padding,
@@ -180,18 +231,62 @@ def update_annotations_in_for_loop(state):
     selected_classes_list = g.selected_classes_list if state['selectedLabelingMode'] == "Classes" else None
     total = get_objects_num_by_classes(selected_classes_list) if state['selectedLabelingMode'] == "Classes" else g.output_project.total_items
 
-    with card_widgets.labeling_progress(message='classifying data', total=total) as pbar:
-        labels_batch = []
+    topN = state["topN"]
+    if state["cls_mode"] == "multi_label":
+        topN = None
+    padding = state['padding']
+    model_session_id = state['model_id']
 
-        topN = state["topN"]
-        if state["cls_mode"] == "multi_label":
-            topN = None
-        for label_info_to_annotate in f.get_images_to_label(g.project_dir, selected_classes_list):
-            labels_batch.append(label_info_to_annotate)
-            pbar.update()
+    labels = list(f.get_images_to_label(g.project_dir, selected_classes_list))
+    try:
+        with card_widgets.labeling_progress(message='classifying data', total=total) as pbar:
+            inference_data = get_data_to_inference(labels)
+            session = InferenceSession(g.api1, model_session_id)
+            labels_batch = []
+            predictions = []
+            for i, prediction in enumerate(session.inference_batch_ids_async({**inference_data, 'topn': topN, 'pad': padding})):
+                labels_batch.append(labels[i])
+                predictions.append(prediction)
+                batch_size = g.batch_size_reduced or state["batchSize"]
+                if len(predictions) == batch_size:
+                    if len(labels_batch[0]) == 2:  # labels
+                        predictions = add_predicted_tags_to_labels(labels_batch, predictions)
+                    else:  # images
+                        predictions = get_predicted_tags_for_images(labels_batch, predictions)
 
-            batch_size = g.batch_size_reduced or state["batchSize"]
-            if len(labels_batch) == batch_size:
+                    update_project_items_by_predicted_labels(labels_batch, predictions)
+                    labels_batch = []
+                    predictions = []
+                    pbar.update(len(predictions))
+            if len(predictions) != 0:
+                if len(labels_batch[0]) == 2:  # labels
+                    predictions = add_predicted_tags_to_labels(labels_batch, predictions)
+                else:  # images
+                    predictions = get_predicted_tags_for_images(labels_batch, predictions)
+
+                update_project_items_by_predicted_labels(labels_batch, predictions)
+                pbar.update(len(predictions))
+
+    except Exception:
+        sly.logger.warn("Unable to apply inderence with session, trying to apply inference in for loop.", exc_info=True)
+        with card_widgets.labeling_progress(message='classifying data', total=total) as pbar:
+            labels_batch = []
+            for label_info_to_annotate in labels:
+                labels_batch.append(label_info_to_annotate)
+                pbar.update()
+
+                batch_size = g.batch_size_reduced or state["batchSize"]
+                if len(labels_batch) == batch_size:
+                    predicted_labels = get_predicted_labels_for_batch(
+                        labels_batch=labels_batch,
+                        model_session_id=model_session_id,
+                        top_n=topN,
+                        padding=padding
+                    )
+                    update_project_items_by_predicted_labels(labels_batch, predicted_labels)
+                    labels_batch = []
+
+            if len(labels_batch) != 0:
                 predicted_labels = get_predicted_labels_for_batch(
                     labels_batch=labels_batch,
                     model_session_id=state['model_id'],
@@ -199,16 +294,6 @@ def update_annotations_in_for_loop(state):
                     padding=state['padding']
                 )
                 update_project_items_by_predicted_labels(labels_batch, predicted_labels)
-                labels_batch = []
-
-        if len(labels_batch) != 0:
-            predicted_labels = get_predicted_labels_for_batch(
-                labels_batch=labels_batch,
-                model_session_id=state['model_id'],
-                top_n=topN,
-                padding=state['padding']
-            )
-            update_project_items_by_predicted_labels(labels_batch, predicted_labels)
 
 
 def label_project(state):
@@ -245,6 +330,7 @@ def upload_project():
 
         project_info = g.api.project.get_info_by_id(project_id)
         DataJson()['outputProject'] = {
+            'projectUrl': sly.Project.get_url(project_id),
             'id': project_info.id,
             'name': project_name,
             'img_url': project_info.reference_image_url,

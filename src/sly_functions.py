@@ -57,7 +57,7 @@ def get_classes_stats_for_project(project_dir) -> dict:
     return classes_stats
 
 
-def get_images_to_label(project_dir, selected_classes_names=None) -> dict:
+def get_images_to_label(project_dir, selected_classes_names=None):
     project = sly.Project(directory=project_dir, mode=sly.OpenMode.READ)
     project_meta = project.meta
 
