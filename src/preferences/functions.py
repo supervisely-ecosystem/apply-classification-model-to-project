@@ -184,18 +184,12 @@ class InferenceSession(SessionJSON):
 
 def get_predicted_labels_for_batch(labels_batch, model_session_id, top_n, padding, progress_cb=None):
     inference_data = get_data_to_inference(labels_batch)
-    try:
-        session = InferenceSession(g.api1, model_session_id)
-        predictions = []
-        for prediction in session.inference_batch_ids_async({**inference_data, 'topn': top_n, 'pad': padding}):
-            predictions.append(prediction)
-            progress_cb()
-    except Exception:
-        predictions = g.api1.task.send_request(model_session_id, "inference_batch_ids", data={
-            'topn': top_n,
-            'pad': padding,
-            **inference_data
-        })
+
+    predictions = g.api1.task.send_request(model_session_id, "inference_batch_ids", data={
+        'topn': top_n,
+        'pad': padding,
+        **inference_data
+    })
 
     if len(labels_batch[0]) == 2:  # labels
         return add_predicted_tags_to_labels(labels_batch, predictions)
@@ -237,18 +231,62 @@ def update_annotations_in_for_loop(state):
     selected_classes_list = g.selected_classes_list if state['selectedLabelingMode'] == "Classes" else None
     total = get_objects_num_by_classes(selected_classes_list) if state['selectedLabelingMode'] == "Classes" else g.output_project.total_items
 
-    with card_widgets.labeling_progress(message='classifying data', total=total) as pbar:
-        labels_batch = []
+    topN = state["topN"]
+    if state["cls_mode"] == "multi_label":
+        topN = None
+    padding = state['padding']
+    model_session_id = state['model_id']
 
-        topN = state["topN"]
-        if state["cls_mode"] == "multi_label":
-            topN = None
-        for label_info_to_annotate in f.get_images_to_label(g.project_dir, selected_classes_list):
-            labels_batch.append(label_info_to_annotate)
-            pbar.update()
+    labels = list(f.get_images_to_label(g.project_dir, selected_classes_list))
+    try:
+        with card_widgets.labeling_progress(message='classifying data', total=total) as pbar:
+            inference_data = get_data_to_inference(labels)
+            session = InferenceSession(g.api1, model_session_id)
+            labels_batch = []
+            predictions = []
+            for i, prediction in enumerate(session.inference_batch_ids_async({**inference_data, 'topn': topN, 'pad': padding})):
+                labels_batch.append(labels[i])
+                predictions.append(prediction)
+                batch_size = g.batch_size_reduced or state["batchSize"]
+                if len(predictions) == batch_size:
+                    if len(labels_batch[0]) == 2:  # labels
+                        predictions = add_predicted_tags_to_labels(labels_batch, predictions)
+                    else:  # images
+                        predictions = get_predicted_tags_for_images(labels_batch, predictions)
 
-            batch_size = g.batch_size_reduced or state["batchSize"]
-            if len(labels_batch) == batch_size:
+                    update_project_items_by_predicted_labels(labels_batch, predictions)
+                    labels_batch = []
+                    predictions = []
+                    pbar.update(len(predictions))
+            if len(predictions) != 0:
+                if len(labels_batch[0]) == 2:  # labels
+                    predictions = add_predicted_tags_to_labels(labels_batch, predictions)
+                else:  # images
+                    predictions = get_predicted_tags_for_images(labels_batch, predictions)
+
+                update_project_items_by_predicted_labels(labels_batch, predictions)
+                pbar.update(len(predictions))
+
+    except Exception:
+        sly.logger.warn("Unable to apply inderence with session, trying to apply inference in for loop.", exc_info=True)
+        with card_widgets.labeling_progress(message='classifying data', total=total) as pbar:
+            labels_batch = []
+            for label_info_to_annotate in labels:
+                labels_batch.append(label_info_to_annotate)
+                pbar.update()
+
+                batch_size = g.batch_size_reduced or state["batchSize"]
+                if len(labels_batch) == batch_size:
+                    predicted_labels = get_predicted_labels_for_batch(
+                        labels_batch=labels_batch,
+                        model_session_id=model_session_id,
+                        top_n=topN,
+                        padding=padding
+                    )
+                    update_project_items_by_predicted_labels(labels_batch, predicted_labels)
+                    labels_batch = []
+
+            if len(labels_batch) != 0:
                 predicted_labels = get_predicted_labels_for_batch(
                     labels_batch=labels_batch,
                     model_session_id=state['model_id'],
@@ -256,16 +294,6 @@ def update_annotations_in_for_loop(state):
                     padding=state['padding']
                 )
                 update_project_items_by_predicted_labels(labels_batch, predicted_labels)
-                labels_batch = []
-
-        if len(labels_batch) != 0:
-            predicted_labels = get_predicted_labels_for_batch(
-                labels_batch=labels_batch,
-                model_session_id=state['model_id'],
-                top_n=topN,
-                padding=state['padding']
-            )
-            update_project_items_by_predicted_labels(labels_batch, predicted_labels)
 
 
 def label_project(state):
