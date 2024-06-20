@@ -330,6 +330,7 @@ def upload_project():
 
         project_info = g.api.project.get_info_by_id(project_id)
         DataJson()['outputProject'] = {
+            'projectUrl': sly.Project.get_url(project_id),
             'id': project_info.id,
             'name': project_name,
             'img_url': project_info.reference_image_url,
