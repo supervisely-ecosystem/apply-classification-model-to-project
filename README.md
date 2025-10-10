@@ -13,7 +13,7 @@
 </p>
 
 
-[![](https://img.shields.io/badge/supervisely-ecosystem-brightgreen)](https://ecosystem.supervisely.com/apps/supervisely-ecosystem/apply-classification-model-to-project)
+[![](https://img.shields.io/badge/supervisely-ecosystem-brightgreen)](../../../../supervisely-ecosystem/apply-classification-model-to-project)
 [![](https://img.shields.io/badge/slack-chat-green.svg?logo=slack)](https://supervisely.com/slack)
 ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/supervisely-ecosystem/apply-classification-model-to-project)
 [![views](https://app.supervisely.com/img/badges/views/supervisely-ecosystem/apply-classification-model-to-project.png)](https://supervisely.com)
@@ -47,7 +47,7 @@ Application key points:
 
 # How To Run
 
-1. Add [Apply Classifier to Images Project](https://ecosystem.supervisely.com/apps/supervisely-ecosystem/apply-classification-model-to-project) application to your Team
+1. Add [Apply Classifier to Images Project](../../../../supervisely-ecosystem/apply-classification-model-to-project) application to your Team
 
 <img data-key="sly-module-link" data-module-slug="supervisely-ecosystem/apply-classification-model-to-project" src="https://github.com/supervisely-ecosystem/apply-classification-model-to-project/releases/download/v0.0.1/app-name-descrition.png" width="350px"/>
 
@@ -57,7 +57,7 @@ Application key points:
 
 # Common Apps
 
-1. [Serve MM Classification](https://ecosystem.supervisely.com/apps/supervisely-ecosystem/mmclassification/supervisely/serve) — NeuralNetwork classifier
+1. [Serve MM Classification](../../../../supervisely-ecosystem/mmclassification/supervisely/serve) — NeuralNetwork classifier
 
 <img data-key="sly-module-link" data-module-slug="supervisely-ecosystem/mmclassification/supervisely/serve" src="https://github.com/supervisely-ecosystem/apply-classification-model-to-project/releases/download/v0.0.1/common-apps-1.png" width="350px"/>
 
