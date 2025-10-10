@@ -57,7 +57,7 @@ Application key points:
 
 # Common Apps
 
-1. [Serve MM Classification](../../../../supervisely-ecosystem/mmclassification/supervisely/serve) — NeuralNetwork classifier
+1. [Serve MM Classification](../../../../../../supervisely-ecosystem/mmclassification/supervisely/serve) — NeuralNetwork classifier
 
 <img data-key="sly-module-link" data-module-slug="supervisely-ecosystem/mmclassification/supervisely/serve" src="https://github.com/supervisely-ecosystem/apply-classification-model-to-project/releases/download/v0.0.1/common-apps-1.png" width="350px"/>
 
