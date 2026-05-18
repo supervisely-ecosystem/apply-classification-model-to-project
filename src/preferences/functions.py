@@ -102,17 +102,47 @@ def get_tags_list_for_predictions(predictions_row):
     return tags_list
 
 
+def unwrap_predictions_response(predictions):
+    if not isinstance(predictions, dict):
+        return predictions
+
+    for key in ("predictions", "results", "result", "outputs", "output"):
+        if key in predictions:
+            return predictions[key]
+
+    return predictions
+
+
+def get_prediction_from_response(predictions, index, row):
+    predictions = unwrap_predictions_response(predictions)
+
+    if isinstance(predictions, (list, tuple)):
+        if index < len(predictions):
+            return predictions[index]
+        return None
+
+    if isinstance(predictions, dict):
+        image_info = row[0] if isinstance(row, (list, tuple)) else row
+        possible_keys = (index, str(index), image_info.id, str(image_info.id))
+        for key in possible_keys:
+            if key in predictions:
+                return predictions[key]
+
+    return None
+
+
 def add_predicted_tags_to_labels(labels_batch, predictions):
     updated_labels = []
 
     for index, row in enumerate(labels_batch):
         label: sly.Label = row[1]
+        prediction = get_prediction_from_response(predictions, index, row)
 
-        if predictions[index] is None:
+        if prediction is None:
             sly.logger.warning(f'cannot read prediction for label {row}')
             continue
 
-        tags_list = get_tags_list_for_predictions(predictions[index])
+        tags_list = get_tags_list_for_predictions(prediction)
 
         updated_labels.append(label.clone(tags=sly.TagCollection(tags_list)))
 
@@ -123,12 +153,13 @@ def get_predicted_tags_for_images(labels_batch, predictions):
     predicted_tags_collections = []
 
     for index, row in enumerate(labels_batch):
+        prediction = get_prediction_from_response(predictions, index, row)
 
-        if predictions[index] is None:
+        if prediction is None:
             sly.logger.warning(f'cannot read prediction for label {row}')
             continue
 
-        tags_list = get_tags_list_for_predictions(predictions[index])
+        tags_list = get_tags_list_for_predictions(prediction)
         predicted_tags_collections.append(sly.TagCollection(tags_list))
 
     return predicted_tags_collections
