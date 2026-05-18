@@ -9,7 +9,7 @@
     "inference interfaces"
   ],
   "description": "label project images or objects using NN",
-  "docker_image": "supervisely/base-py-sdk-hardened:6.73.564",
+  "docker_image": "supervisely/apply-classification-model-to-project:6.73.564",
   "instance_version": "6.15.60",
   "entrypoint": "python -m uvicorn src.main:g.app --host 0.0.0.0 --port 8000",
   "port": 8000,
